@@ -1,6 +1,7 @@
+---
 name: Deploy Container Images
 
-on:
+'on':
   push:
     branches:
       - main
@@ -44,7 +45,9 @@ jobs:
 
   build-lint-tools-image:
     needs: detect-image-changes
-    if: ${{ (github.event_name != 'workflow_dispatch' && needs.detect-image-changes.outputs.lint-tools == 'true') || (github.event_name == 'workflow_dispatch' && (inputs.rebuild_target == 'lint-tools' || inputs.rebuild_target == 'all')) }}
+    if: |
+      (github.event_name != 'workflow_dispatch' && needs.detect-image-changes.outputs.lint-tools == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.rebuild_target == 'lint-tools' || inputs.rebuild_target == 'all'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
