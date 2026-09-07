@@ -86,6 +86,8 @@ RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \
     && chown -R 1000:1000 /home/appuser /workspace
 
 ENV HOME=/home/appuser
+ENV PRE_COMMIT_HOME=/tmp/pre-commit
+ENV ANSIBLE_LOCAL_TEMP=/tmp/ansible
 
 # Default workspace directory
 WORKDIR /workspace
