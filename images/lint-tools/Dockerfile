@@ -32,26 +32,36 @@ ARG TRUFFLEHOG_VERSION=3.97.4
 
 WORKDIR /tmp/bin
 
-# 1. shfmt
-RUN curl -sL "https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64" -o shfmt \
-    && chmod +x shfmt
+# 1. shfmt (built from source with Go 1.27.1)
+RUN git clone --depth 1 --branch v${SHFMT_VERSION} https://github.com/mvdan/sh.git /tmp/sh \
+    && cd /tmp/sh \
+    && go get golang.org/x/text@v0.39.0 || true \
+    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/shfmt ./cmd/shfmt \
+    && rm -rf /tmp/sh
 
-# 2. kubeconform
-RUN curl -sL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar -xz kubeconform \
-    && chmod +x kubeconform
+# 2. kubeconform (built from source with Go 1.27.1 and patched x/text)
+RUN git clone --depth 1 --branch v${KUBECONFORM_VERSION} https://github.com/yannh/kubeconform.git /tmp/kubeconform \
+    && cd /tmp/kubeconform \
+    && go get golang.org/x/text@v0.39.0 \
+    && go mod tidy \
+    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kubeconform ./cmd/kubeconform \
+    && rm -rf /tmp/kubeconform
 
-# 3. kube-score
-RUN curl -sL "https://github.com/zegl/kube-score/releases/download/v${KUBESCORE_VERSION}/kube-score_${KUBESCORE_VERSION}_linux_amd64.tar.gz" | tar -xz kube-score \
-    && chmod +x kube-score
+# 3. kube-score (built from source with Go 1.27.1 and patched x/text)
+RUN git clone --depth 1 --branch v${KUBESCORE_VERSION} https://github.com/zegl/kube-score.git /tmp/kube-score \
+    && cd /tmp/kube-score \
+    && go get golang.org/x/text@v0.39.0 \
+    && go mod tidy \
+    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kube-score ./cmd/kube-score \
+    && rm -rf /tmp/kube-score
 
 # 4. kustomize (built from source with Go 1.27.1 and patched x/text)
-RUN git clone --depth 1 https://github.com/kubernetes-sigs/kustomize.git /tmp/kustomize \
+RUN git clone --depth 1 --branch kustomize/${KUSTOMIZE_VERSION} https://github.com/kubernetes-sigs/kustomize.git /tmp/kustomize \
     && cd /tmp/kustomize/kustomize \
     && go get golang.org/x/text@v0.39.0 \
     && go mod tidy \
     && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kustomize . \
     && rm -rf /tmp/kustomize
-
 
 # 5. trivy
 RUN curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz trivy \
