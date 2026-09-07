@@ -70,7 +70,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         python3 \
         python3-pip \
         python3-pytest \
-    && pip install --no-cache-dir --break-system-packages \
+    && pip install --no-cache-dir --break-system-packages --ignore-installed \
         pre-commit \
         ansible-core \
         ansible-lint \
