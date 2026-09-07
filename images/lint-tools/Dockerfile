@@ -80,6 +80,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 # Copy pre-compiled Go binaries from builder
 COPY --from=builder /tmp/bin/* /usr/local/bin/
 
+# Create a non-root user with home directory and workspace
+RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \
+    && mkdir -p /home/appuser/.ansible /home/appuser/.cache /workspace \
+    && chown -R 1000:1000 /home/appuser /workspace
+
+ENV HOME=/home/appuser
+
 # Default workspace directory
 WORKDIR /workspace
 
