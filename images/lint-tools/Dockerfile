@@ -35,32 +35,37 @@ WORKDIR /tmp/bin
 # 1. shfmt (built from source with Go 1.27.1)
 RUN git clone --depth 1 --branch v${SHFMT_VERSION} https://github.com/mvdan/sh.git /tmp/sh \
     && cd /tmp/sh \
-    && go get golang.org/x/text@v0.39.0 || true \
-    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/shfmt ./cmd/shfmt \
+    && rm -rf vendor \
+    && go get golang.org/x/text@latest || true \
+    && go mod tidy \
+    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/shfmt ./cmd/shfmt \
     && rm -rf /tmp/sh
 
 # 2. kubeconform (built from source with Go 1.27.1 and patched x/text)
 RUN git clone --depth 1 --branch v${KUBECONFORM_VERSION} https://github.com/yannh/kubeconform.git /tmp/kubeconform \
     && cd /tmp/kubeconform \
-    && go get golang.org/x/text@v0.39.0 \
+    && rm -rf vendor \
+    && go get golang.org/x/text@latest \
     && go mod tidy \
-    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kubeconform ./cmd/kubeconform \
+    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/kubeconform ./cmd/kubeconform \
     && rm -rf /tmp/kubeconform
 
-# 3. kube-score (built from source with Go 1.27.1 and patched x/text)
+# 3. kube-score (built from source with Go 1.27.1, patched x/text and x/net)
 RUN git clone --depth 1 --branch v${KUBESCORE_VERSION} https://github.com/zegl/kube-score.git /tmp/kube-score \
     && cd /tmp/kube-score \
-    && go get golang.org/x/text@v0.39.0 \
+    && rm -rf vendor \
+    && go get golang.org/x/text@latest golang.org/x/net@latest \
     && go mod tidy \
-    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kube-score ./cmd/kube-score \
+    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/kube-score ./cmd/kube-score \
     && rm -rf /tmp/kube-score
 
 # 4. kustomize (built from source with Go 1.27.1 and patched x/text)
 RUN git clone --depth 1 --branch kustomize/${KUSTOMIZE_VERSION} https://github.com/kubernetes-sigs/kustomize.git /tmp/kustomize \
     && cd /tmp/kustomize/kustomize \
-    && go get golang.org/x/text@v0.39.0 \
+    && rm -rf vendor \
+    && go get golang.org/x/text@latest \
     && go mod tidy \
-    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kustomize . \
+    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/kustomize . \
     && rm -rf /tmp/kustomize
 
 # 5. trivy
