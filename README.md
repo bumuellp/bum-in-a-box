@@ -127,4 +127,3 @@ All container images follow semantic release tagging:
 * `v1`: Major release line track.
 * `v1.0.0`: Exact immutable release tag.
 * `<sha>`: Commit SHA hash for deterministic tracking and rollbacks.
-

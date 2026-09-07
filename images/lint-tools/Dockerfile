@@ -11,12 +11,22 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         ca-certificates \
         tar \
         gzip \
+        git \
     && rm -rf /var/lib/apt/lists/*
+
+# Install official Go 1.27.1 distribution
+RUN TARGETARCH="$(uname -m)" \
+    && if [ "$TARGETARCH" = "x86_64" ]; then GOARCH="amd64"; \
+       elif [ "$TARGETARCH" = "aarch64" ]; then GOARCH="arm64"; \
+       else GOARCH="amd64"; fi \
+    && curl -fsSL "https://dl.google.com/go/go1.27.1.linux-${GOARCH}.tar.gz" | tar -C /usr/local -xz
+
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 ARG SHFMT_VERSION=3.14.1
 ARG KUBECONFORM_VERSION=0.8.0
 ARG KUBESCORE_VERSION=1.20.0
-ARG KUSTOMIZE_VERSION=5.8.1
+ARG KUSTOMIZE_VERSION=v5.8.1
 ARG TRIVY_VERSION=0.74.0
 ARG TRUFFLEHOG_VERSION=3.97.4
 
@@ -34,9 +44,8 @@ RUN curl -sL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONF
 RUN curl -sL "https://github.com/zegl/kube-score/releases/download/v${KUBESCORE_VERSION}/kube-score_${KUBESCORE_VERSION}_linux_amd64.tar.gz" | tar -xz kube-score \
     && chmod +x kube-score
 
-# 4. kustomize
-RUN curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | tar -xz kustomize \
-    && chmod +x kustomize
+# 4. kustomize (built with Go 1.27.1 for clean stdlib)
+RUN GOBIN=/tmp/bin CGO_ENABLED=0 go install -ldflags="-s -w" "sigs.k8s.io/kustomize/kustomize/v5@${KUSTOMIZE_VERSION}"
 
 # 5. trivy
 RUN curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz trivy \
@@ -45,6 +54,7 @@ RUN curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_V
 # 6. trufflehog
 RUN curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_amd64.tar.gz" | tar -xz trufflehog \
     && chmod +x trufflehog
+
 
 
 # Stage 2: Runtime Image

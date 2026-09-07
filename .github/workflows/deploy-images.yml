@@ -48,4 +48,3 @@ jobs:
       scan-with-trivy: true
     secrets:
       registry-token: ${{ secrets.GITHUB_TOKEN }}
-
