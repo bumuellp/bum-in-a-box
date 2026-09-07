@@ -126,4 +126,24 @@ Images published to GitHub Packages (GHCR) adhere to standard semantic versionin
 * **`:latest`**: Floating tag tracking the most recent build from `main`.
 * **`:<sha>`**: Immutable commit SHA hash for deterministic tracking and rollbacks.
 * **`:v1`**: Floating major version tag tracking the active `v1.x` release stream.
-* **`:v1.0.0`, `:v1.0.1`**: Exact immutable release tags published when a tagged GitHub Release is published.
+* **`:v1.0.0`, `:v1.0.1`**: Exact immutable release tags published when an official GitHub Release is published.
+
+---
+
+## 🚀 Creating a New Immutable Release
+
+To cut a new immutable SemVer release (e.g., `v1.0.1`):
+
+```bash
+# 1. Ensure main branch is up to date and clean
+git checkout main && git pull origin main
+
+# 2. Run the release helper to validate SemVer format and create the GitHub Release
+./scripts/release.sh v1.0.1
+```
+
+This will:
+1. Validate strict SemVer formatting (`vX.Y.Z`).
+2. Verify git status and check for tag collision on remote.
+3. Automatically generate release notes and publish the GitHub Release.
+4. Trigger the GitHub Actions release workflow to build all images, publish the immutable `:v1.0.1` tag, and fast-forward the floating `:v1` pointer.
