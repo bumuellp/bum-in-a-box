@@ -23,9 +23,6 @@ ARG LLAMA_SWAP_REF=main
 ARG CACHEBUST=20260824
 RUN /usr/local/go/bin/go version \
     && git clone --depth 1 ${LLAMA_SWAP_REPO} . && git checkout ${LLAMA_SWAP_REF} \
-    && go mod edit -go=1.27.1 \
-    && go get -u ./... \
-    && go mod tidy \
     && CGO_ENABLED=0 go build -ldflags="-s -w" -o /build/llama-swap . \
     && /usr/local/go/bin/go version -m /build/llama-swap
 
