@@ -9,8 +9,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
   && rm -rf /var/lib/apt/lists/*
 
 # Upgrade global npm and patch npm's internal dependencies (tar, sigstore, picomatch, brace-expansion, ip-address)
-RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest \
-  && cp -rf /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/npm/node_modules/
+RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest tar@latest \
+  && cp -rf /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/ 2>/dev/null || true
+
 
 # Install uv (needed for MCPs that use 'uvx' to spawn themselves)
 RUN pip3 install --no-cache-dir --break-system-packages uv
