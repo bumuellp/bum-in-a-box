@@ -44,8 +44,14 @@ RUN curl -sL "https://github.com/yannh/kubeconform/releases/download/v${KUBECONF
 RUN curl -sL "https://github.com/zegl/kube-score/releases/download/v${KUBESCORE_VERSION}/kube-score_${KUBESCORE_VERSION}_linux_amd64.tar.gz" | tar -xz kube-score \
     && chmod +x kube-score
 
-# 4. kustomize (built with Go 1.27.1 for clean stdlib)
-RUN GOBIN=/tmp/bin CGO_ENABLED=0 go install -ldflags="-s -w" "sigs.k8s.io/kustomize/kustomize/v5@${KUSTOMIZE_VERSION}"
+# 4. kustomize (built from source with Go 1.27.1 and patched x/text)
+RUN git clone --depth 1 https://github.com/kubernetes-sigs/kustomize.git /tmp/kustomize \
+    && cd /tmp/kustomize/kustomize \
+    && go get golang.org/x/text@v0.39.0 \
+    && go mod tidy \
+    && CGO_ENABLED=0 go build -ldflags="-s -w" -o /tmp/bin/kustomize . \
+    && rm -rf /tmp/kustomize
+
 
 # 5. trivy
 RUN curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz trivy \
