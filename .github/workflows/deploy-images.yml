@@ -9,57 +9,35 @@ name: Deploy Container Images
       - 'images/**'
   workflow_dispatch:
     inputs:
-      rebuild_target:
-        description: 'Select image(s) to force rebuild'
+      target:
+        description: Select image to force rebuild (or all)
         type: choice
         options:
-          - 'none'
-          - 'lint-tools'
-          - 'all'
-        default: 'none'
+          - all
+          - lint-tools
+          - llama-proxy
+          - mcpo
+          - vibe-trading
+          - openclaw
+        default: all
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  detect-image-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      lint-tools: ${{ steps.filter.outputs.lint-tools }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Detect Changed Image Dockerfiles
-        id: filter
-        uses: dorny/paths-filter@v4
-        with:
-          base: ${{ github.event_name == 'push' && github.event.before || github.event.repository.default_branch }}
-          ref: ${{ github.sha }}
-          filters: |
-            lint-tools:
-              - 'images/lint-tools/**'
-
-  build-lint-tools-image:
-    needs: detect-image-changes
-    if: |
-      (github.event_name != 'workflow_dispatch' && needs.detect-image-changes.outputs.lint-tools == 'true') ||
-      (github.event_name == 'workflow_dispatch' && (inputs.rebuild_target == 'lint-tools' || inputs.rebuild_target == 'all'))
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-
-      - name: Build and Push Image via Shared Action
-        uses: bumuellp/lights-camera-bum-action/build-ghcr-image@main
-        with:
-          context: images/lint-tools
-          dockerfile: images/lint-tools/Dockerfile
-          image-name: lint-tools
-          repository-owner: ${{ github.repository_owner }}
-          sha: ${{ github.sha }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  deploy:
+    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@v1
+    with:
+      images: |
+        [
+          {"name": "lint-tools", "path": "images/lint-tools"},
+          {"name": "llama-proxy", "path": "images/llama-proxy"},
+          {"name": "mcpo", "path": "images/mcpo"},
+          {"name": "vibe-trading", "path": "images/vibe-trading"},
+          {"name": "openclaw", "path": "images/openclaw"}
+        ]
+      target: ${{ inputs.target || 'all' }}
+      scan-with-trivy: true
+    secrets:
+      registry-token: ${{ secrets.GITHUB_TOKEN }}

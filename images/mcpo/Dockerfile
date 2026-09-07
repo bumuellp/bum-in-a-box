@@ -1,0 +1,32 @@
+FROM node:24-slim
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+  python3 \
+  python3-pip \
+  python3-venv \
+  git \
+  curl \
+  && rm -rf /var/lib/apt/lists/*
+
+# Upgrade global npm and patch npm's internal dependencies (tar, sigstore, picomatch, brace-expansion, ip-address)
+RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest \
+  && cp -rf /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/npm/node_modules/
+
+# Install uv (needed for MCPs that use 'uvx' to spawn themselves)
+RUN pip3 install --no-cache-dir --break-system-packages uv
+
+# Install mcpo directly via pip with pinned mcp v1.x (to avoid breaking changes from mcp 2.x)
+RUN pip3 install --no-cache-dir --break-system-packages "mcp>=1.10.1,<2.0.0" mcpo setuptools
+
+# Debug: verify installation
+RUN echo "=== mcpo location ===" && which mcpo || echo "WARNING: which mcpo failed"
+RUN echo "=== uv location ===" && which uv || echo "WARNING: which uv failed"
+
+ENV PATH="/usr/local/bin:$PATH"
+WORKDIR /app
+
+USER node
+
+# Use mcpo from PATH since pip3 install puts it in /usr/local/bin
+ENTRYPOINT ["mcpo"]
+CMD ["--config", "/app/config.json", "--port", "9000"]

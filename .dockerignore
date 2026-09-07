@@ -1,0 +1,13 @@
+**/.git
+**/.gitignore
+**/.dockerignore
+**/.github
+**/.cache
+**/.pytest_cache
+**/__pycache__
+**/.venv
+**/venv
+**/node_modules
+**/*.md
+**/*.log
+.DS_Store
