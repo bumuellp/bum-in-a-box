@@ -5,23 +5,38 @@ name: Deploy Container Images
   push:
     branches:
       - main
-    tags:
-      - 'v*'
     paths:
       - 'images/**'
   workflow_dispatch:
     inputs:
-      target:
-        description: Select image to force rebuild (or all)
+      mode:
+        description: Build mode (all = rebuild all, auto = git diff, custom = use checkboxes)
         type: choice
         options:
           - all
-          - lint-tools
-          - llama-proxy
-          - mcpo
-          - vibe-trading
-          - openclaw
+          - auto
+          - custom
         default: all
+      lint_tools:
+        description: 'Custom: Build lint-tools'
+        type: boolean
+        default: false
+      llama_proxy:
+        description: 'Custom: Build llama-proxy'
+        type: boolean
+        default: false
+      mcpo:
+        description: 'Custom: Build mcpo'
+        type: boolean
+        default: false
+      vibe_trading:
+        description: 'Custom: Build vibe-trading'
+        type: boolean
+        default: false
+      openclaw:
+        description: 'Custom: Build openclaw'
+        type: boolean
+        default: false
       extra-tags:
         description: Comma-separated extra tags to push (e.g. v1, v1.0.0)
         type: string
@@ -32,7 +47,50 @@ permissions:
   packages: write
 
 jobs:
+  resolve-target:
+    name: Resolve Target
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.resolve.outputs.target }}
+    steps:
+      - name: Compute Target Selection
+        id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          MODE: ${{ inputs.mode }}
+          LINT_TOOLS: ${{ inputs.lint_tools }}
+          LLAMA_PROXY: ${{ inputs.llama_proxy }}
+          MCPO: ${{ inputs.mcpo }}
+          VIBE_TRADING: ${{ inputs.vibe_trading }}
+          OPENCLAW: ${{ inputs.openclaw }}
+        run: |
+          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
+            echo "target=auto" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$MODE" = "all" ] || [ "$MODE" = "auto" ]; then
+            echo "target=$MODE" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          TARGETS=()
+          [ "$LINT_TOOLS" = "true" ] && TARGETS+=("lint-tools")
+          [ "$LLAMA_PROXY" = "true" ] && TARGETS+=("llama-proxy")
+          [ "$MCPO" = "true" ] && TARGETS+=("mcpo")
+          [ "$VIBE_TRADING" = "true" ] && TARGETS+=("vibe-trading")
+          [ "$OPENCLAW" = "true" ] && TARGETS+=("openclaw")
+
+          if [ ${#TARGETS[@]} -eq 0 ]; then
+            echo "target=none" >> "$GITHUB_OUTPUT"
+          else
+            TARGET_STR=$(IFS=','; echo "${TARGETS[*]}")
+            echo "target=$TARGET_STR" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy:
+    name: Deploy
+    needs: resolve-target
     uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@v1
     with:
       images: |
@@ -43,7 +101,7 @@ jobs:
           {"name": "vibe-trading", "path": "images/vibe-trading"},
           {"name": "openclaw", "path": "images/openclaw"}
         ]
-      target: ${{ inputs.target || 'all' }}
+      target: ${{ needs.resolve-target.outputs.target }}
       extra-tags: ${{ inputs.extra-tags || 'v1, v1.0.0' }}
       scan-with-trivy: true
     secrets:
