@@ -12,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     && rm -rf /usr/local/share/corepack \
     && mkdir -p /tmp/patch && cd /tmp/patch \
     && npm install @opentelemetry/propagator-jaeger@latest @vitest/browser@latest brace-expansion@latest fast-uri@latest ip-address@latest postcss@latest tar@latest undici@latest nanoid@latest \
+    && rm -rf /app/node_modules/tar /app/node_modules/undici /app/node_modules/ws /app/node_modules/nanoid /app/node_modules/brace-expansion /app/node_modules/ip-address 2>/dev/null || true \
     && cp -rf /tmp/patch/node_modules/* /app/node_modules/ \
     && find /app/node_modules -type d -name "nanoid" -exec cp -rf /tmp/patch/node_modules/nanoid/* {}/ \; \
     && find /app/node_modules -type d -name "undici" -exec cp -rf /tmp/patch/node_modules/undici/* {}/ \; \

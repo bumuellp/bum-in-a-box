@@ -7,15 +7,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install official Go 1.27.0 distribution
+# Install official Go 1.27.1 distribution
 RUN TARGETARCH="$(uname -m)" \
     && if [ "$TARGETARCH" = "x86_64" ]; then GOARCH="amd64"; \
        elif [ "$TARGETARCH" = "aarch64" ]; then GOARCH="arm64"; \
        else GOARCH="amd64"; fi \
-    && curl -fsSL "https://dl.google.com/go/go1.27.0.linux-${GOARCH}.tar.gz" | tar -C /usr/local -xz
+    && curl -fsSL "https://dl.google.com/go/go1.27.1.linux-${GOARCH}.tar.gz" | tar -C /usr/local -xz
 
 ENV PATH="/usr/local/go/bin:${PATH}"
-ENV GOTOOLCHAIN=local
+ENV GOTOOLCHAIN=auto
 
 WORKDIR /src
 ARG LLAMA_SWAP_REPO=https://github.com/mostlygeek/llama-swap.git
@@ -23,7 +23,7 @@ ARG LLAMA_SWAP_REF=main
 ARG CACHEBUST=20260824
 RUN /usr/local/go/bin/go version \
     && git clone --depth 1 ${LLAMA_SWAP_REPO} . && git checkout ${LLAMA_SWAP_REF} \
-    && go mod edit -go=1.27 -toolchain=none \
+    && go mod edit -go=1.27.1 \
     && go get -u ./... \
     && go mod tidy \
     && CGO_ENABLED=0 go build -ldflags="-s -w" -o /build/llama-swap . \
