@@ -120,10 +120,10 @@ docker run -d \
 
 ---
 
-## 🏷️ Versioning & Tagging Convention
+## 🏷️ Versioning & Release Model
 
-All container images follow semantic release tagging:
-* `latest`: The latest stable build from the `main` branch.
-* `v1`: Major release line track.
-* `v1.0.0`: Exact immutable release tag.
-* `<sha>`: Commit SHA hash for deterministic tracking and rollbacks.
+Images published to GitHub Packages (GHCR) adhere to standard semantic versioning:
+* **`:latest`**: Floating tag tracking the most recent build from `main`.
+* **`:<sha>`**: Immutable commit SHA hash for deterministic tracking and rollbacks.
+* **`:v1`**: Floating major version tag tracking the active `v1.x` release stream.
+* **`:v1.0.0`, `:v1.0.1`**: Exact immutable release tags published when a tagged GitHub Release is published.
