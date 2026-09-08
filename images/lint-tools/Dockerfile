@@ -102,6 +102,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         python3-pip \
         python3-pytest \
     && pip install --no-cache-dir --break-system-packages --ignore-installed \
+        uv \
         pre-commit \
         ansible-core \
         ansible-lint \
@@ -134,6 +135,7 @@ RUN shellcheck --version \
     && trivy --version \
     && trufflehog --version \
     && yamllint --version \
+    && uv --version \
     && pre-commit --version \
     && ansible --version \
     && pytest --version
