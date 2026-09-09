@@ -23,6 +23,8 @@ ARG LLAMA_SWAP_REF=main
 ARG CACHEBUST=20260824
 RUN /usr/local/go/bin/go version \
     && git clone --depth 1 ${LLAMA_SWAP_REPO} . && git checkout ${LLAMA_SWAP_REF} \
+    && mkdir -p /build/licenses/llama-swap \
+    && cp LICENSE* /build/licenses/llama-swap/ 2>/dev/null || true \
     && CGO_ENABLED=0 go build -ldflags="-s -w" -o /build/llama-swap . \
     && /usr/local/go/bin/go version -m /build/llama-swap
 
@@ -31,15 +33,17 @@ FROM ghcr.io/ggml-org/llama.cpp:server-vulkan
 
 LABEL org.opencontainers.image.title="llama-proxy" \
       org.opencontainers.image.description="llama-swap proxy with native Vulkan llama-server" \
-      org.opencontainers.image.source="https://github.com/mostlygeek/llama-swap"
+      org.opencontainers.image.source="https://github.com/bumuellp/bum-in-a-box" \
+      org.opencontainers.image.upstream="https://github.com/mostlygeek/llama-swap"
 
 USER root
 
 # Remove unused pebble binary inherited from upstream base image that contains Go stdlib CVEs
 RUN rm -f /usr/bin/pebble
 
-# Copy static llama-swap binary from Go builder stage
+# Copy static llama-swap binary and license from Go builder stage
 COPY --from=go-builder /build/llama-swap /usr/local/bin/llama-swap
+COPY --from=go-builder /build/licenses/ /usr/local/share/licenses/
 
 EXPOSE 5002
 ENTRYPOINT ["/usr/local/bin/llama-swap"]

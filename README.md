@@ -2,9 +2,17 @@
 
 A curated collection of production-hardened OCI container images and specialized execution environments for DevOps pipelines, AI agent stacks, local LLM gateways, and homelab infrastructure.
 
----
-
 ## 📦 Container Catalog & Architecture
+
+| Container Image | Primary Runtime | Docs | Default Port | Description |
+| :--- | :--- | :---: | :---: | :--- |
+| **`lint-tools`** | Debian Trixie + Go + Python | [Read Docs](images/lint-tools/README.md) | — | Unified linting, formatting, K8s scoring & secrets toolchain. |
+| **`llama-proxy`** | Vulkan GGML + llama-swap | [Read Docs](images/llama-proxy/README.md) | `5002` | High-speed LLM gateway with `ktransforms` & dynamic model swapping. |
+| **`mcpo`** | Node 24 Slim + Python + uv | [Read Docs](images/mcpo/README.md) | `9000` | Model Context Protocol gateway & `uvx` runner bridge. |
+| **`openclaw`** | Node + Playwright Chromium | [Read Docs](images/openclaw/README.md) | `3000` | Hardened autonomous web browsing and agent execution stack. |
+| **`vibe-trading`** | Python 3.11 + Vite/Vue | [Read Docs](images/vibe-trading/README.md) | `8899` | Quantitative finance research & backtesting AI agent stack. |
+
+---
 
 ### 1. `llama-proxy` — High-Speed Vulkan LLM Gateway & Dynamic Model Switcher
 A high-performance reverse proxy and OpenAI-compatible API gateway combining [`mostlygeek/llama-swap`](https://github.com/mostlygeek/llama-swap) with GGML's official native Vulkan `llama-server`.
@@ -118,6 +126,19 @@ docker run -d \
   ghcr.io/bumuellp/openclaw:latest
 ```
 
+## 🧪 Container Smoke Testing
+All images are verified using `./scripts/smoke-test.sh` to ensure:
+1. **Security Isolation**: Container executes as a non-root UID (`id -u != 0`).
+2. **Binary Availability**: Core binaries exist and execute cleanly.
+3. **Entrypoint Readiness**: CLI `--version` and `--help` flags respond without runtime crashing.
+
+```bash
+# Smoke test an image locally or from GHCR:
+./scripts/smoke-test.sh lint-tools ghcr.io/bumuellp/lint-tools:latest
+./scripts/smoke-test.sh llama-proxy ghcr.io/bumuellp/llama-proxy:latest
+./scripts/smoke-test.sh mcpo ghcr.io/bumuellp/mcpo:latest
+```
+
 ---
 
 ## 🏷️ Versioning & Release Model
@@ -147,3 +168,23 @@ This will:
 2. Verify git status and check for tag collision on remote.
 3. Automatically generate release notes and publish the GitHub Release.
 4. Trigger the GitHub Actions release workflow to build all images, publish the immutable `:v1.0.1` tag, and fast-forward the floating `:v1` pointer.
+
+---
+
+## ⚖️ License & Open-Source Compliance
+
+### Repository Licensing
+The Dockerfiles, build scripts, GitHub Actions workflows, and documentation in this repository are licensed under the [MIT License](LICENSE) © 2026 Patrick Bumüller.
+
+### Container Image Composition & Upstream Licenses
+The container images built from this repository bundle independent third-party open-source components. Packaging these standalone tools into container images constitutes **mere aggregation** (under GPL-3.0 / AGPL-3.0 Section 5), and does not extend copyleft licensing to unrelated containers or host systems.
+
+All third-party tools retain their respective upstream licenses. Upstream license texts and copyright notices are preserved in `/usr/local/share/licenses/<tool>/` (or `/usr/share/doc/*/copyright` for Debian packages) within each container image:
+
+| Image | Bundled Upstream Components | Licenses |
+| :--- | :--- | :--- |
+| **`lint-tools`** | `trufflehog`<br>`shellcheck`, `yamllint`, `ansible-core`, `ansible-lint`<br>`kubeconform`, `kustomize`, `trivy`, `uv`<br>`shfmt`<br>`kube-score`, `pre-commit`, `pytest` | **AGPL-3.0**<br>**GPL-3.0**<br>**Apache-2.0**<br>**BSD-3-Clause**<br>**MIT** |
+| **`llama-proxy`** | `llama-swap`<br>`llama-server` (GGML Vulkan) | **MIT**<br>**MIT** |
+| **`mcpo`** | `mcpo`, `mcp`<br>`uv` | **MIT**<br>**Apache-2.0 / MIT** |
+| **`openclaw`** | `openclaw`<br>Playwright, Chromium | **MIT**<br>**Apache-2.0**, BSD |
+| **`vibe-trading`** | `HKUDS/Vibe-Trading`<br>Cairo, Pango, HarfBuzz | **MIT**<br>LGPL-2.1 / MPL-2.0 |

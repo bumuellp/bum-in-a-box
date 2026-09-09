@@ -35,6 +35,8 @@ WORKDIR /tmp/bin
 # 1. shfmt (built from source with Go 1.27.1)
 RUN git clone --depth 1 --branch v${SHFMT_VERSION} https://github.com/mvdan/sh.git /tmp/sh \
     && cd /tmp/sh \
+    && mkdir -p /tmp/licenses/shfmt \
+    && cp LICENSE* /tmp/licenses/shfmt/ 2>/dev/null || true \
     && rm -rf vendor \
     && go get golang.org/x/text@latest || true \
     && go mod tidy \
@@ -44,6 +46,8 @@ RUN git clone --depth 1 --branch v${SHFMT_VERSION} https://github.com/mvdan/sh.g
 # 2. kubeconform (built from source with Go 1.27.1 and patched x/text)
 RUN git clone --depth 1 --branch v${KUBECONFORM_VERSION} https://github.com/yannh/kubeconform.git /tmp/kubeconform \
     && cd /tmp/kubeconform \
+    && mkdir -p /tmp/licenses/kubeconform \
+    && cp LICENSE* /tmp/licenses/kubeconform/ 2>/dev/null || true \
     && rm -rf vendor \
     && go get golang.org/x/text@latest \
     && go mod tidy \
@@ -53,6 +57,8 @@ RUN git clone --depth 1 --branch v${KUBECONFORM_VERSION} https://github.com/yann
 # 3. kube-score (built from source with Go 1.27.1, patched x/text and x/net)
 RUN git clone --depth 1 --branch v${KUBESCORE_VERSION} https://github.com/zegl/kube-score.git /tmp/kube-score \
     && cd /tmp/kube-score \
+    && mkdir -p /tmp/licenses/kube-score \
+    && cp LICENSE* /tmp/licenses/kube-score/ 2>/dev/null || true \
     && rm -rf vendor \
     && go get golang.org/x/text@latest golang.org/x/net@latest \
     && go mod tidy \
@@ -61,6 +67,9 @@ RUN git clone --depth 1 --branch v${KUBESCORE_VERSION} https://github.com/zegl/k
 
 # 4. kustomize (built from source with Go 1.27.1 and patched x/text)
 RUN git clone --depth 1 --branch kustomize/${KUSTOMIZE_VERSION} https://github.com/kubernetes-sigs/kustomize.git /tmp/kustomize \
+    && cd /tmp/kustomize \
+    && mkdir -p /tmp/licenses/kustomize \
+    && cp LICENSE* /tmp/licenses/kustomize/ 2>/dev/null || true \
     && cd /tmp/kustomize/kustomize \
     && rm -rf vendor \
     && go get golang.org/x/text@latest \
@@ -69,12 +78,16 @@ RUN git clone --depth 1 --branch kustomize/${KUSTOMIZE_VERSION} https://github.c
     && rm -rf /tmp/kustomize
 
 # 5. trivy
-RUN curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz trivy \
-    && chmod +x trivy
+RUN mkdir -p /tmp/licenses/trivy \
+    && curl -sL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" | tar -xz -C /tmp/licenses/trivy LICENSE trivy \
+    && mv /tmp/licenses/trivy/trivy /tmp/bin/trivy \
+    && chmod +x /tmp/bin/trivy
 
 # 6. trufflehog
-RUN curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_amd64.tar.gz" | tar -xz trufflehog \
-    && chmod +x trufflehog
+RUN mkdir -p /tmp/licenses/trufflehog \
+    && curl -sL "https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}/trufflehog_${TRUFFLEHOG_VERSION}_linux_amd64.tar.gz" | tar -xz -C /tmp/licenses/trufflehog LICENSE trufflehog \
+    && mv /tmp/licenses/trufflehog/trufflehog /tmp/bin/trufflehog \
+    && chmod +x /tmp/bin/trufflehog
 
 
 
@@ -109,8 +122,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /root/.cache
 
-# Copy pre-compiled Go binaries from builder
+# Copy pre-compiled Go binaries and third-party licenses from builder
 COPY --from=builder /tmp/bin/* /usr/local/bin/
+COPY --from=builder /tmp/licenses/ /usr/local/share/licenses/
 
 # Create a non-root user with home directory and workspace
 RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \

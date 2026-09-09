@@ -1,5 +1,11 @@
 FROM ghcr.io/openclaw/openclaw:latest
 
+LABEL org.opencontainers.image.title="openclaw" \
+      org.opencontainers.image.description="Hardened autonomous web browsing and agent execution stack" \
+      org.opencontainers.image.source="https://github.com/bumuellp/bum-in-a-box" \
+      org.opencontainers.image.upstream="https://github.com/openclaw/openclaw" \
+      org.opencontainers.image.licenses="MIT"
+
 # Als Root, um Pakete zu installieren
 USER root
 
@@ -7,6 +13,9 @@ USER root
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     lsof \
     cargo \
+    curl \
+    && mkdir -p /usr/local/share/licenses/openclaw \
+    && curl -fsSL https://raw.githubusercontent.com/openclaw/openclaw/main/LICENSE -o /usr/local/share/licenses/openclaw/LICENSE 2>/dev/null || true \
     && npm install -g --force npm@latest pnpm@latest playwright@latest brace-expansion@latest ip-address@latest tar@latest undici@latest nanoid@latest \
     && cp -rf /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/undici /usr/local/lib/node_modules/npm/node_modules/ 2>/dev/null || true \
     && rm -rf /usr/local/share/corepack \

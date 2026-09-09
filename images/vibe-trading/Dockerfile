@@ -43,7 +43,8 @@ FROM python:3.11-slim AS runtime
 
 LABEL org.opencontainers.image.title="Vibe-Trading" \
     org.opencontainers.image.description="Natural-language finance research AI agent with backtesting" \
-    org.opencontainers.image.source="https://github.com/HKUDS/Vibe-Trading" \
+    org.opencontainers.image.source="https://github.com/bumuellp/bum-in-a-box" \
+    org.opencontainers.image.upstream="https://github.com/HKUDS/Vibe-Trading" \
     org.opencontainers.image.licenses="MIT"
 
 WORKDIR /app
@@ -66,7 +67,9 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY --from=builder /opt/venv /opt/venv
 
+RUN mkdir -p /usr/local/share/licenses/vibe-trading
 COPY --from=src /src/pyproject.toml /src/LICENSE /src/README.md ./
+COPY --from=src /src/LICENSE /usr/local/share/licenses/vibe-trading/LICENSE
 COPY --from=src /src/agent/ agent/
 COPY --from=frontend-build /app/frontend/dist frontend/dist
 

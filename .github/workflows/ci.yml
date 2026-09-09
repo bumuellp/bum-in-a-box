@@ -1,0 +1,19 @@
+---
+name: CI
+
+'on':
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    name: Pre-Commit & Automated Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Run Pre-Commit via Shared Action
+        uses: bumuellp/lights-camera-bum-action/pre-commit@main

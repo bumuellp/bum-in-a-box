@@ -19,6 +19,16 @@ RUN pip3 install --no-cache-dir --break-system-packages uv
 # Install mcpo directly via pip with pinned mcp v1.x (to avoid breaking changes from mcp 2.x)
 RUN pip3 install --no-cache-dir --break-system-packages "mcp>=1.10.1,<2.0.0" mcpo setuptools
 
+LABEL org.opencontainers.image.title="mcpo" \
+      org.opencontainers.image.description="Model Context Protocol gateway & uvx runner bridge" \
+      org.opencontainers.image.source="https://github.com/bumuellp/bum-in-a-box" \
+      org.opencontainers.image.upstream="https://github.com/open-webui/mcpo" \
+      org.opencontainers.image.licenses="MIT"
+
+# Retain upstream license for compliance
+RUN mkdir -p /usr/local/share/licenses/mcpo \
+  && curl -fsSL https://raw.githubusercontent.com/open-webui/mcpo/main/LICENSE -o /usr/local/share/licenses/mcpo/LICENSE 2>/dev/null || true
+
 # Debug: verify installation
 RUN echo "=== mcpo location ===" && which mcpo || echo "WARNING: which mcpo failed"
 RUN echo "=== uv location ===" && which uv || echo "WARNING: which uv failed"

@@ -12,6 +12,7 @@ scanners:
   - vuln
   - misconfig
   - secret
+  - license
 
 # Ignorefile path
 vulnerability:
