@@ -2,8 +2,8 @@
 FROM debian:bookworm-slim AS go-builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    ca-certificates \
+    git=1:2.39.5-0+deb12u3 \
+    ca-certificates=20250419~deb12u1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,7 +31,7 @@ LABEL org.opencontainers.image.title="llama-proxy" \
       org.opencontainers.image.source="https://github.com/bumuellp/bum-in-a-box" \
       org.opencontainers.image.upstream="https://github.com/mostlygeek/llama-swap"
 
-USER root
+USER 0:0
 
 # Remove unused pebble binary inherited from upstream base image that contains Go stdlib CVEs
 RUN rm -f /usr/bin/pebble

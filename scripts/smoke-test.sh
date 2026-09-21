@@ -46,6 +46,7 @@ lint-tools)
 	docker run --rm "$FULL_IMAGE" kustomize version
 	docker run --rm "$FULL_IMAGE" trivy --version
 	docker run --rm "$FULL_IMAGE" trufflehog --version
+	docker run --rm "$FULL_IMAGE" hadolint --version
 	docker run --rm "$FULL_IMAGE" yamllint --version
 	docker run --rm "$FULL_IMAGE" uv --version
 	docker run --rm "$FULL_IMAGE" pre-commit --version

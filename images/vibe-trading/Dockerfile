@@ -3,7 +3,7 @@
 # Stage 0: Fetch Vibe-Trading source code from GitHub
 ARG VIBE_TRADING_REPO=https://github.com/HKUDS/Vibe-Trading.git
 ARG VIBE_TRADING_REF=main
-FROM alpine/git:latest AS src
+FROM alpine/git:2.47.2 AS src
 WORKDIR /src
 ARG VIBE_TRADING_REPO
 ARG VIBE_TRADING_REF
@@ -21,7 +21,7 @@ RUN npm run build
 FROM python:3.11-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+    build-essential=12.12 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -54,13 +54,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpango-1.0-0 \
-    libpangoft2-1.0-0 \
-    libharfbuzz0b \
-    libfontconfig1 \
-    libgdk-pixbuf-2.0-0 \
-    libcairo2 \
-    fonts-dejavu-core \
+    libpango-1.0-0=1.56.3-1 \
+    libpangoft2-1.0-0=1.56.3-1 \
+    libharfbuzz0b=10.2.0-1+deb13u1 \
+    libfontconfig1=2.15.0-2.3 \
+    libgdk-pixbuf-2.0-0=2.42.12+dfsg-4+deb13u1 \
+    libcairo2=1.18.4-1+b1 \
+    fonts-dejavu-core=2.37-8 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/lib/python3.11/site-packages/*
@@ -75,12 +75,12 @@ COPY --from=src /src/LICENSE /usr/local/share/licenses/vibe-trading/LICENSE
 COPY --from=src /src/agent/ agent/
 COPY --from=frontend-build /app/frontend/dist frontend/dist
 
-RUN useradd --create-home --shell /usr/sbin/nologin vibe \
+RUN useradd --create-home --uid 1000 --shell /usr/sbin/nologin vibe \
     && useradd --system --no-create-home --shell /usr/sbin/nologin --uid 10001 vibe-sandbox \
     && mkdir -p agent/runs agent/sessions agent/uploads agent/.swarm/runs /home/vibe/.vibe-trading \
     && chown -R vibe:vibe /app /home/vibe/.vibe-trading
 
-USER vibe
+USER 1000:1000
 
 EXPOSE 8899
 

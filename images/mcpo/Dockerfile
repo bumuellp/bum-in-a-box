@@ -1,11 +1,11 @@
 FROM node:24-slim
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-  python3 \
-  python3-pip \
-  python3-venv \
-  git \
-  curl \
+  python3=3.11.2-1+b1 \
+  python3-pip=23.0.1+dfsg-1 \
+  python3-venv=3.11.2-1+b1 \
+  git=1:2.39.5-0+deb12u3 \
+  curl=7.88.1-10+deb12u15 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -17,12 +17,12 @@ RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest t
        fi; \
      done
 
-
-# Install uv (needed for MCPs that use 'uvx' to spawn themselves)
-RUN pip3 install --no-cache-dir --break-system-packages uv
-
-# Install mcpo directly via pip with pinned mcp v1.x (to avoid breaking changes from mcp 2.x)
-RUN pip3 install --no-cache-dir --break-system-packages "mcp>=1.10.1,<2.0.0" mcpo setuptools
+# Install uv, mcpo gateway, and pinned dependencies
+RUN pip3 install --no-cache-dir --break-system-packages \
+  uv==0.12.17 \
+  mcp==1.30.0 \
+  mcpo==0.0.20 \
+  setuptools==66.1.1
 
 LABEL org.opencontainers.image.title="mcpo" \
       org.opencontainers.image.description="Model Context Protocol gateway & uvx runner bridge" \
@@ -32,16 +32,15 @@ LABEL org.opencontainers.image.title="mcpo" \
 
 # Retain upstream license for compliance
 RUN mkdir -p /usr/local/share/licenses/mcpo \
-  && curl -fsSL https://raw.githubusercontent.com/open-webui/mcpo/main/LICENSE -o /usr/local/share/licenses/mcpo/LICENSE 2>/dev/null || true
+  && curl -fsSL https://raw.githubusercontent.com/open-webui/mcpo/main/LICENSE -o /usr/local/share/licenses/mcpo/LICENSE
 
-# Debug: verify installation
-RUN echo "=== mcpo location ===" && which mcpo || echo "WARNING: which mcpo failed"
-RUN echo "=== uv location ===" && which uv || echo "WARNING: which uv failed"
+# Verify CLI binaries execute cleanly
+RUN mcpo --help >/dev/null && uv --version >/dev/null
 
 ENV PATH="/usr/local/bin:$PATH"
 WORKDIR /app
 
-USER node
+USER 1000:1000
 
 # Use mcpo from PATH since pip3 install puts it in /usr/local/bin
 ENTRYPOINT ["mcpo"]
