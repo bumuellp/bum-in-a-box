@@ -35,6 +35,12 @@ check_non_root() {
 	echo "✓ Non-root UID verified: UID $uid"
 }
 
+run_command_preview() {
+	local output
+	output="$("$@" 2>&1)"
+	echo "$output" | head -n 5
+}
+
 case "$IMAGE_NAME" in
 lint-tools)
 	check_non_root "$FULL_IMAGE"
@@ -57,14 +63,14 @@ lint-tools)
 llama-proxy)
 	check_non_root "$FULL_IMAGE"
 	echo "Verifying llama-swap binary..."
-	docker run --rm --entrypoint /usr/local/bin/llama-swap "$FULL_IMAGE" -h 2>&1 | head -n 5
+	run_command_preview docker run --rm --entrypoint /usr/local/bin/llama-swap "$FULL_IMAGE" -h
 	echo "✓ llama-proxy entrypoint verified."
 	;;
 
 mcpo)
 	check_non_root "$FULL_IMAGE"
 	echo "Verifying mcpo and uv..."
-	docker run --rm --entrypoint mcpo "$FULL_IMAGE" --help 2>&1 | head -n 5
+	run_command_preview docker run --rm --entrypoint mcpo "$FULL_IMAGE" --help
 	docker run --rm --entrypoint uv "$FULL_IMAGE" --version
 	echo "✓ mcpo runtime verified."
 	;;
@@ -72,14 +78,14 @@ mcpo)
 openclaw)
 	check_non_root "$FULL_IMAGE"
 	echo "Verifying openclaw CLI..."
-	docker run --rm "$FULL_IMAGE" node openclaw.mjs --help 2>&1 | head -n 5
+	run_command_preview docker run --rm "$FULL_IMAGE" node openclaw.mjs --help
 	echo "✓ openclaw container verified."
 	;;
 
 vibe-trading)
 	check_non_root "$FULL_IMAGE"
 	echo "Verifying vibe-trading CLI..."
-	docker run --rm "$FULL_IMAGE" vibe-trading --help 2>&1 | head -n 5
+	run_command_preview docker run --rm "$FULL_IMAGE" vibe-trading --help
 	echo "✓ vibe-trading CLI verified."
 	;;
 

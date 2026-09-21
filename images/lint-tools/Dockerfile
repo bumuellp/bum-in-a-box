@@ -28,6 +28,8 @@ ARG KUSTOMIZE_VERSION=v5.8.1
 ARG TRIVY_VERSION=0.74.0
 ARG TRUFFLEHOG_VERSION=3.97.4
 ARG HADOLINT_VERSION=2.12.0
+ARG GOLANG_X_TEXT_VERSION=v0.42.0
+ARG GOLANG_X_NET_VERSION=v0.59.0
 
 WORKDIR /tmp/bin
 
@@ -44,9 +46,9 @@ RUN build_go_tool() ( \
         && rm -rf "/tmp/$name"; \
     ) \
     && build_go_tool https://github.com/mvdan/sh.git "v${SHFMT_VERSION}" shfmt cmd/shfmt \
-    && build_go_tool https://github.com/yannh/kubeconform.git "v${KUBECONFORM_VERSION}" kubeconform cmd/kubeconform \
-    && build_go_tool https://github.com/zegl/kube-score.git "v${KUBESCORE_VERSION}" kube-score cmd/kube-score "golang.org/x/text@latest" "golang.org/x/net@latest" \
-    && build_go_tool https://github.com/kubernetes-sigs/kustomize.git "kustomize/${KUSTOMIZE_VERSION}" kustomize kustomize
+    && build_go_tool https://github.com/yannh/kubeconform.git "v${KUBECONFORM_VERSION}" kubeconform cmd/kubeconform "golang.org/x/text@${GOLANG_X_TEXT_VERSION}" \
+    && build_go_tool https://github.com/zegl/kube-score.git "v${KUBESCORE_VERSION}" kube-score cmd/kube-score "golang.org/x/text@${GOLANG_X_TEXT_VERSION}" "golang.org/x/net@${GOLANG_X_NET_VERSION}" \
+    && build_go_tool https://github.com/kubernetes-sigs/kustomize.git "kustomize/${KUSTOMIZE_VERSION}" kustomize kustomize "golang.org/x/text@${GOLANG_X_TEXT_VERSION}"
 
 
 # 5. trivy
