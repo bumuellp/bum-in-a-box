@@ -27,7 +27,7 @@ echo "=== Running Smoke Tests on: ${FULL_IMAGE} (${IMAGE_NAME}) ==="
 check_non_root() {
 	local img="$1"
 	local uid
-	uid="$(docker run --rm "$img" id -u)"
+	uid="$(docker run --rm --entrypoint id "$img" -u)"
 	if [ "$uid" -eq 0 ]; then
 		echo "❌ SECURITY FAILURE: Image $img runs as root (UID 0)!" >&2
 		exit 1
@@ -70,8 +70,8 @@ mcpo)
 
 openclaw)
 	check_non_root "$FULL_IMAGE"
-	echo "Verifying openclaw non-root user..."
-	docker run --rm "$FULL_IMAGE" id
+	echo "Verifying openclaw CLI..."
+	docker run --rm "$FULL_IMAGE" node openclaw.mjs --help 2>&1 | head -n 5
 	echo "✓ openclaw container verified."
 	;;
 

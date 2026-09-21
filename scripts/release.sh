@@ -40,7 +40,7 @@ if git rev-parse "$TARGET_TAG" >/dev/null 2>&1; then
 	exit 1
 fi
 
-if git ls-remote --tags origin "$TARGET_TAG" | grep -q "$TARGET_TAG"; then
+if git ls-remote --tags origin "refs/tags/${TARGET_TAG}" | grep -q -E "refs/tags/${TARGET_TAG}(\^\{\})?$"; then
 	echo "ERROR: Tag '$TARGET_TAG' already exists on remote origin. Release tags are immutable!"
 	exit 1
 fi

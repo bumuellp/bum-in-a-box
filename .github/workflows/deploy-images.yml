@@ -125,5 +125,6 @@ jobs:
       target: ${{ needs.resolve-target.outputs.target }}
       extra-tags: ${{ needs.resolve-target.outputs.extra-tags }}
       scan-with-trivy: true
+      smoke-test-script: scripts/smoke-test.sh
     secrets:
       registry-token: ${{ secrets.GITHUB_TOKEN }}
