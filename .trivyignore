@@ -2,5 +2,6 @@
 # Trivy Vulnerability Ignore Rules
 # ==============================================================================
 
-# Upstream AquaSecurity Trivy binary CVE in bundled grpc dependency (not exploitable in CLI tool)
+# Upstream AquaSecurity Trivy binary CVEs in bundled grpc dependency (not exploitable in CLI tool)
 CVE-2026-84304
+CVE-2026-84445

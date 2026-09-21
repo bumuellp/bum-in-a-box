@@ -52,7 +52,7 @@ docker run --rm -it \
 ## 🔒 Security & User
 - **Runtime User**: `appuser` (UID `1000`, GID `1000`).
 - **Working Directory**: `/workspace`.
-- **Vulnerability Status**: 0 CVEs (Trivy scan enforced in CI).
+- **Security Scanning**: Automated Trivy vulnerability and misconfiguration scans enforced in CI.
 
 ---
 

@@ -6,11 +6,16 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
   python3-venv \
   git \
   curl \
+  && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Upgrade global npm and patch npm's internal dependencies (tar, sigstore, picomatch, brace-expansion, ip-address)
+# Upgrade global npm and patch npm's internal dependencies (tar, brace-expansion, ip-address)
 RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest tar@latest \
-  && cp -rf /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/ 2>/dev/null || true
+  && for pkg in brace-expansion ip-address tar; do \
+       if [ -d "/usr/local/lib/node_modules/$pkg" ]; then \
+         cp -rf "/usr/local/lib/node_modules/$pkg" /usr/local/lib/node_modules/npm/node_modules/; \
+       fi; \
+     done
 
 
 # Install uv (needed for MCPs that use 'uvx' to spawn themselves)

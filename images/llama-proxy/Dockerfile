@@ -1,18 +1,13 @@
-# Stage 1: Build latest secure llama-swap binary with official Go 1.27.0 release (0 CVEs)
+# Stage 1: Build llama-swap binary with official Go 1.27.1
 FROM debian:bookworm-slim AS go-builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
-    curl \
     ca-certificates \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install official Go 1.27.1 distribution
-RUN TARGETARCH="$(uname -m)" \
-    && if [ "$TARGETARCH" = "x86_64" ]; then GOARCH="amd64"; \
-       elif [ "$TARGETARCH" = "aarch64" ]; then GOARCH="arm64"; \
-       else GOARCH="amd64"; fi \
-    && curl -fsSL "https://dl.google.com/go/go1.27.1.linux-${GOARCH}.tar.gz" | tar -C /usr/local -xz
+COPY --from=golang:1.27.1 /usr/local/go /usr/local/go
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 ENV GOTOOLCHAIN=auto

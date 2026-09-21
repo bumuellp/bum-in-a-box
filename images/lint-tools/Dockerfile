@@ -12,14 +12,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         tar \
         gzip \
         git \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install official Go 1.27.1 distribution
-RUN TARGETARCH="$(uname -m)" \
-    && if [ "$TARGETARCH" = "x86_64" ]; then GOARCH="amd64"; \
-       elif [ "$TARGETARCH" = "aarch64" ]; then GOARCH="arm64"; \
-       else GOARCH="amd64"; fi \
-    && curl -fsSL "https://dl.google.com/go/go1.27.1.linux-${GOARCH}.tar.gz" | tar -C /usr/local -xz
+COPY --from=golang:1.27.1 /usr/local/go /usr/local/go
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -32,50 +28,25 @@ ARG TRUFFLEHOG_VERSION=3.97.4
 
 WORKDIR /tmp/bin
 
-# 1. shfmt (built from source with Go 1.27.1)
-RUN git clone --depth 1 --branch v${SHFMT_VERSION} https://github.com/mvdan/sh.git /tmp/sh \
-    && cd /tmp/sh \
-    && mkdir -p /tmp/licenses/shfmt \
-    && cp LICENSE* /tmp/licenses/shfmt/ 2>/dev/null || true \
-    && rm -rf vendor \
-    && go get golang.org/x/text@latest || true \
-    && go mod tidy \
-    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/shfmt ./cmd/shfmt \
-    && rm -rf /tmp/sh
+# Build Go-based CLI utilities from source with Go 1.27.1
+RUN build_go_tool() ( \
+        repo="$1"; tag="$2"; name="$3"; subpath="${4:-.}"; extra_pkgs="${5:-golang.org/x/text@latest}"; \
+        git clone --depth 1 --branch "$tag" "$repo" "/tmp/$name" \
+        && cd "/tmp/$name" \
+        && mkdir -p "/tmp/licenses/$name" \
+        && cp LICENSE* "/tmp/licenses/$name/" 2>/dev/null || true \
+        && rm -rf vendor \
+        && cd "/tmp/$name/$subpath" \
+        && go get $extra_pkgs || true \
+        && go mod tidy \
+        && CGO_ENABLED=0 GOWORK=off go build -mod=mod -ldflags="-s -w" -o "/tmp/bin/$name" . \
+        && rm -rf "/tmp/$name"; \
+    ) \
+    && build_go_tool https://github.com/mvdan/sh.git "v${SHFMT_VERSION}" shfmt cmd/shfmt \
+    && build_go_tool https://github.com/yannh/kubeconform.git "v${KUBECONFORM_VERSION}" kubeconform cmd/kubeconform \
+    && build_go_tool https://github.com/zegl/kube-score.git "v${KUBESCORE_VERSION}" kube-score cmd/kube-score "golang.org/x/text@latest golang.org/x/net@latest" \
+    && build_go_tool https://github.com/kubernetes-sigs/kustomize.git "kustomize/${KUSTOMIZE_VERSION}" kustomize kustomize
 
-# 2. kubeconform (built from source with Go 1.27.1 and patched x/text)
-RUN git clone --depth 1 --branch v${KUBECONFORM_VERSION} https://github.com/yannh/kubeconform.git /tmp/kubeconform \
-    && cd /tmp/kubeconform \
-    && mkdir -p /tmp/licenses/kubeconform \
-    && cp LICENSE* /tmp/licenses/kubeconform/ 2>/dev/null || true \
-    && rm -rf vendor \
-    && go get golang.org/x/text@latest \
-    && go mod tidy \
-    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/kubeconform ./cmd/kubeconform \
-    && rm -rf /tmp/kubeconform
-
-# 3. kube-score (built from source with Go 1.27.1, patched x/text and x/net)
-RUN git clone --depth 1 --branch v${KUBESCORE_VERSION} https://github.com/zegl/kube-score.git /tmp/kube-score \
-    && cd /tmp/kube-score \
-    && mkdir -p /tmp/licenses/kube-score \
-    && cp LICENSE* /tmp/licenses/kube-score/ 2>/dev/null || true \
-    && rm -rf vendor \
-    && go get golang.org/x/text@latest golang.org/x/net@latest \
-    && go mod tidy \
-    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/kube-score ./cmd/kube-score \
-    && rm -rf /tmp/kube-score
-
-# 4. kustomize (built from source with Go 1.27.1 and patched x/text)
-RUN git clone --depth 1 --branch kustomize/${KUSTOMIZE_VERSION} https://github.com/kubernetes-sigs/kustomize.git /tmp/kustomize \
-    && cd /tmp/kustomize \
-    && mkdir -p /tmp/licenses/kustomize \
-    && cp LICENSE* /tmp/licenses/kustomize/ 2>/dev/null || true \
-    && cd /tmp/kustomize/kustomize \
-    && rm -rf vendor \
-    && go get golang.org/x/text@latest \
-    && go mod tidy \
-    && CGO_ENABLED=0 GOWORK=off go build -ldflags="-s -w" -o /tmp/bin/kustomize . \
-    && rm -rf /tmp/kustomize
 
 # 5. trivy
 RUN mkdir -p /tmp/licenses/trivy \
@@ -102,7 +73,7 @@ LABEL org.opencontainers.image.title="lint-tools" \
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install linters, python, and utilities via standard APT package manager
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
         bash \
         git \
         curl \
