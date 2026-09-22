@@ -1,7 +1,20 @@
 # ==============================================================================
-# Trivy Vulnerability Ignore Rules
+# Trivy Vulnerability & Misconfiguration Ignore Rules
 # ==============================================================================
 
 # Upstream AquaSecurity Trivy binary CVEs in bundled grpc dependency (not exploitable in CLI tool)
 CVE-2026-84304
 CVE-2026-84445
+
+# ------------------------------------------------------------------------------
+# Upstream Base Image (ghcr.io/ggml-org/llama.cpp:server-vulkan) Misconfigurations
+# Note: Repository Dockerfiles remain strictly validated against these rules
+#       via Hadolint (DL3015 and DL3021) in pre-commit and CI.
+# ------------------------------------------------------------------------------
+# DS-0011: Multi-source COPY command argument missing trailing slash in upstream base layer
+DS-0011
+AVD-DS-0011
+
+# DS-0029: Missing '--no-install-recommends' in upstream base image apt-get install layer
+DS-0029
+AVD-DS-0029
