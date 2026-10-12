@@ -28,7 +28,9 @@ ARG KUSTOMIZE_VERSION=v5.8.1
 ARG TRIVY_VERSION=0.74.0
 ARG TRUFFLEHOG_VERSION=3.97.4
 ARG HADOLINT_VERSION=2.12.0
+ARG OPENTOFU_VERSION=1.13.1
 ARG GOLANG_X_TEXT_VERSION=v0.42.0
+
 ARG GOLANG_X_NET_VERSION=v0.59.0
 
 WORKDIR /tmp/bin
@@ -68,6 +70,13 @@ RUN mkdir -p /tmp/licenses/hadolint \
     && curl -sL "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-x86_64" -o /tmp/bin/hadolint \
     && chmod +x /tmp/bin/hadolint \
     && curl -fsSL "https://raw.githubusercontent.com/hadolint/hadolint/master/LICENSE" -o /tmp/licenses/hadolint/LICENSE
+
+# 8. opentofu
+RUN mkdir -p /tmp/licenses/opentofu \
+    && curl -sL "https://github.com/opentofu/opentofu/releases/download/v${OPENTOFU_VERSION}/tofu_${OPENTOFU_VERSION}_linux_amd64.tar.gz" | tar -xz -C /tmp/licenses/opentofu LICENSE tofu \
+    && mv /tmp/licenses/opentofu/tofu /tmp/bin/tofu \
+    && chmod +x /tmp/bin/tofu
+
 
 
 # Stage 2: Runtime Image
@@ -130,7 +139,9 @@ RUN shellcheck --version \
     && trivy --version \
     && trufflehog --version \
     && hadolint --version \
+    && tofu --version \
     && yamllint --version \
+
     && uv --version \
     && pre-commit --version \
     && ansible --version \

@@ -21,7 +21,10 @@ Compiles all Go tools from source with official Go 1.27.1, eliminates Go standar
 | **`pre-commit`** | 4.6.2 | MIT | Git multi-language pre-commit runner |
 | **`uv`** | 0.12.10+ | Apache-2.0 / MIT | Fast Python dependency and environment manager |
 | **`pytest`** | 8.3.5+ | MIT | Python test runner |
+| **`hadolint`** | 2.12.0 | GPL-3.0 | Dockerfile static linter |
+| **`tofu`** | v1.13.1 | MPL-2.0 | Declarative OpenTofu & Terraform infrastructure tool |
 | **`ansible`** | ansible-core + ansible-lint | GPL-3.0 | Playbook syntax and linting tool |
+
 
 ---
 

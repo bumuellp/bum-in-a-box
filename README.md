@@ -183,7 +183,8 @@ All third-party tools retain their respective upstream licenses. Upstream licens
 
 | Image | Bundled Upstream Components | Licenses |
 | :--- | :--- | :--- |
-| **`lint-tools`** | `trufflehog`<br>`shellcheck`, `yamllint`, `ansible-core`, `ansible-lint`<br>`kubeconform`, `kustomize`, `trivy`, `uv`<br>`shfmt`<br>`kube-score`, `pre-commit`, `pytest` | **AGPL-3.0**<br>**GPL-3.0**<br>**Apache-2.0**<br>**BSD-3-Clause**<br>**MIT** |
+| **`lint-tools`** | `trufflehog`<br>`shellcheck`, `yamllint`, `ansible-core`, `ansible-lint`<br>`kubeconform`, `kustomize`, `trivy`, `uv`<br>`shfmt`, `hadolint`, `tofu`<br>`kube-score`, `pre-commit`, `pytest` | **AGPL-3.0**<br>**GPL-3.0**<br>**Apache-2.0**<br>**BSD-3-Clause**<br>**MPL-2.0**<br>**MIT** |
+
 | **`llama-proxy`** | `llama-swap`<br>`llama-server` (GGML Vulkan) | **MIT**<br>**MIT** |
 | **`mcpo`** | `mcpo`, `mcp`<br>`uv` | **MIT**<br>**Apache-2.0 / MIT** |
 | **`openclaw`** | `openclaw`<br>Playwright, Chromium | **MIT**<br>**Apache-2.0**, BSD |
