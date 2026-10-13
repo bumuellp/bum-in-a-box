@@ -18,7 +18,7 @@ COPY --from=src /src/frontend ./
 RUN npm run build
 
 # Stage 2: Python builder — compiles venv with dependencies
-FROM python:3.11-slim AS builder
+FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential=12.12 \
@@ -40,7 +40,7 @@ RUN pip install --no-cache-dir -e . \
     && pip install --no-cache-dir --upgrade "wheel>=0.46.2" "jaraco.context>=6.1.0" "setuptools>=75.0.0" "urllib3>=2.8.0"
 
 # Stage 3: Minimal secure runtime stage
-FROM python:3.11-slim AS runtime
+FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS runtime
 
 LABEL org.opencontainers.image.title="Vibe-Trading" \
     org.opencontainers.image.description="Natural-language finance research AI agent with backtesting" \
