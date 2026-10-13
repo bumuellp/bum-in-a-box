@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=golang:1.27.1 /usr/local/go /usr/local/go
+COPY --from=golang:1.27.2 /usr/local/go /usr/local/go
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -25,13 +25,13 @@ ARG SHFMT_VERSION=3.14.1
 ARG KUBECONFORM_VERSION=0.8.0
 ARG KUBESCORE_VERSION=1.20.0
 ARG KUSTOMIZE_VERSION=v5.8.1
-ARG TRIVY_VERSION=0.74.0
+ARG TRIVY_VERSION=0.75.0
 ARG TRUFFLEHOG_VERSION=3.97.4
 ARG HADOLINT_VERSION=2.12.0
 ARG OPENTOFU_VERSION=1.13.1
 ARG GOLANG_X_TEXT_VERSION=v0.42.0
 
-ARG GOLANG_X_NET_VERSION=v0.59.0
+ARG GOLANG_X_NET_VERSION=v0.60.0
 
 WORKDIR /tmp/bin
 
@@ -141,7 +141,6 @@ RUN shellcheck --version \
     && hadolint --version \
     && tofu --version \
     && yamllint --version \
-
     && uv --version \
     && pre-commit --version \
     && ansible --version \

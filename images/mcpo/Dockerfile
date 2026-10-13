@@ -9,9 +9,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Upgrade global npm and patch npm's internal dependencies (tar, brace-expansion, ip-address)
-RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest tar@latest \
-  && for pkg in brace-expansion ip-address tar; do \
+# Upgrade global npm and patch npm's internal dependencies (tar, brace-expansion, ip-address, undici)
+RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest tar@latest undici@latest \
+  && for pkg in brace-expansion ip-address tar undici; do \
        if [ -d "/usr/local/lib/node_modules/$pkg" ]; then \
          cp -rf "/usr/local/lib/node_modules/$pkg" /usr/local/lib/node_modules/npm/node_modules/; \
        fi; \

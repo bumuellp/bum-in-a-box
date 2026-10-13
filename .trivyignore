@@ -7,6 +7,18 @@ CVE-2026-84304
 CVE-2026-84445
 
 # ------------------------------------------------------------------------------
+# Upstream Precompiled CLI Binaries (AquaSecurity Trivy & OpenTofu in lint-tools)
+# Upstream release binaries are compiled with Go 1.27.1 and older vendored modules.
+# These represent net/http, crypto/tls, and go/sumdb DoS vectors not exploitable
+# in offline CLI linting tools.
+# ------------------------------------------------------------------------------
+CVE-2026-56864
+CVE-2026-56865
+CVE-2026-78667
+CVE-2026-78669
+CVE-2026-97031
+
+# ------------------------------------------------------------------------------
 # Upstream Base Image (ghcr.io/ggml-org/llama.cpp:server-vulkan) Misconfigurations
 # Note: Repository Dockerfiles remain strictly validated against these rules
 #       via Hadolint (DL3015 and DL3021) in pre-commit and CI.

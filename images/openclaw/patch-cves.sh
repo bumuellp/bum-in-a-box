@@ -30,31 +30,44 @@ mkdir -p /tmp/patch
 cd /tmp/patch
 
 npm install \
+	@modelcontextprotocol/client@latest \
+	@modelcontextprotocol/sdk@latest \
 	@opentelemetry/propagator-jaeger@latest \
 	@vitest/browser@latest \
 	adm-zip@latest \
 	brace-expansion@latest \
 	fast-uri@latest \
 	ip-address@latest \
+	joi@latest \
 	postcss@latest \
+	source-map-js@latest \
 	tar@latest \
 	undici@latest \
 	nanoid@latest
 
 # Remove known vulnerable versions in /app/node_modules
-for pkg in tar undici ws nanoid brace-expansion ip-address adm-zip; do
+for pkg in tar undici ws nanoid brace-expansion ip-address adm-zip joi source-map-js; do
 	rm -rf "/app/node_modules/$pkg"
 done
+rm -rf /app/node_modules/@modelcontextprotocol/client /app/node_modules/@modelcontextprotocol/sdk
 
 # Copy patched top-level packages
 cp -rf /tmp/patch/node_modules/* /app/node_modules/
 
 # Propagate patched packages to nested transitive dependencies
-for pkg in nanoid undici tar brace-expansion ip-address adm-zip fast-uri; do
+for pkg in nanoid undici tar brace-expansion ip-address adm-zip fast-uri joi source-map-js; do
 	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
 		while IFS= read -r -d '' target_dir; do
 			cp -rf "/tmp/patch/node_modules/$pkg"/. "$target_dir/"
 		done < <(find /app/node_modules -type d -name "$pkg" -print0)
+	fi
+done
+
+for pkg in client sdk; do
+	if [ -d "/tmp/patch/node_modules/@modelcontextprotocol/$pkg" ]; then
+		while IFS= read -r -d '' target_dir; do
+			cp -rf "/tmp/patch/node_modules/@modelcontextprotocol/$pkg"/. "$target_dir/"
+		done < <(find /app/node_modules -path "*/@modelcontextprotocol/$pkg" -type d -print0)
 	fi
 done
 
