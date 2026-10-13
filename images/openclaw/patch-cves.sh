@@ -45,20 +45,48 @@ npm install \
 	undici@latest \
 	nanoid@latest
 
+PATCH_PKGS=(
+	adm-zip
+	brace-expansion
+	fast-uri
+	ip-address
+	joi
+	nanoid
+	postcss
+	source-map-js
+	tar
+	undici
+	ws
+)
+
 # Remove known vulnerable versions in /app/node_modules
-for pkg in tar undici ws nanoid brace-expansion ip-address adm-zip joi source-map-js; do
+for pkg in "${PATCH_PKGS[@]}"; do
 	rm -rf "/app/node_modules/$pkg"
 done
 rm -rf /app/node_modules/@modelcontextprotocol/client /app/node_modules/@modelcontextprotocol/sdk
 
-# Copy patched top-level packages
-cp -rf /tmp/patch/node_modules/* /app/node_modules/
+# Copy patched packages to top-level if present in /tmp/patch
+for pkg in "${PATCH_PKGS[@]}"; do
+	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
+		cp -rf "/tmp/patch/node_modules/$pkg" /app/node_modules/
+	fi
+done
+
+for pkg in @opentelemetry/propagator-jaeger @vitest/browser @modelcontextprotocol/client @modelcontextprotocol/sdk; do
+	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
+		mkdir -p "/app/node_modules/$(dirname "$pkg")"
+		rm -rf "/app/node_modules/$pkg"
+		cp -rf "/tmp/patch/node_modules/$pkg" "/app/node_modules/$pkg"
+	fi
+done
 
 # Propagate patched packages to nested transitive dependencies
 for pkg in nanoid undici tar brace-expansion ip-address adm-zip fast-uri joi source-map-js; do
 	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
 		while IFS= read -r -d '' target_dir; do
-			cp -rf "/tmp/patch/node_modules/$pkg"/. "$target_dir/"
+			if [ "$target_dir" != "/app/node_modules/$pkg" ]; then
+				cp -rf "/tmp/patch/node_modules/$pkg"/. "$target_dir/"
+			fi
 		done < <(find /app/node_modules -type d -name "$pkg" -print0)
 	fi
 done
@@ -66,7 +94,9 @@ done
 for pkg in client sdk; do
 	if [ -d "/tmp/patch/node_modules/@modelcontextprotocol/$pkg" ]; then
 		while IFS= read -r -d '' target_dir; do
-			cp -rf "/tmp/patch/node_modules/@modelcontextprotocol/$pkg"/. "$target_dir/"
+			if [ "$target_dir" != "/app/node_modules/@modelcontextprotocol/$pkg" ]; then
+				cp -rf "/tmp/patch/node_modules/@modelcontextprotocol/$pkg"/. "$target_dir/"
+			fi
 		done < <(find /app/node_modules -path "*/@modelcontextprotocol/$pkg" -type d -print0)
 	fi
 done

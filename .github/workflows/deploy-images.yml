@@ -49,6 +49,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: deploy-images
+  cancel-in-progress: false
+
 jobs:
   resolve-target:
     name: Resolve Target
