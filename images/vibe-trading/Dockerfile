@@ -3,7 +3,7 @@
 # Stage 0: Fetch Vibe-Trading source code from GitHub
 ARG VIBE_TRADING_REPO=https://github.com/HKUDS/Vibe-Trading.git
 ARG VIBE_TRADING_REF=main
-FROM alpine/git:2.47.2 AS src
+FROM alpine/git:v2.52.0@sha256:4a0e72d49596a1f5d3701aeedafdadc5c0da4062be4657c7bdc4017387f591cc AS src
 WORKDIR /src
 ARG VIBE_TRADING_REPO
 ARG VIBE_TRADING_REF
