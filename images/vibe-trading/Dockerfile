@@ -37,7 +37,8 @@ RUN pip install --no-cache-dir --require-hashes -r requirements-lock.txt
 COPY --from=src /src/pyproject.toml /src/LICENSE /src/README.md ./
 COPY --from=src /src/agent/ agent/
 RUN pip install --no-cache-dir -e . \
-    && pip install --no-cache-dir --upgrade "wheel>=0.46.2" "jaraco.context>=6.1.0" "setuptools>=75.0.0" "urllib3>=2.8.0"
+    && pip install --no-cache-dir --upgrade "wheel>=0.46.2" "jaraco.context>=6.1.0" "setuptools>=78.1.1" "urllib3>=2.8.0" \
+    && rm -rf /opt/venv/lib/python*/site-packages/pip* /opt/venv/lib/python*/site-packages/setuptools* /opt/venv/lib/python*/site-packages/wheel* /opt/venv/bin/pip*
 
 # Stage 3: Minimal secure runtime stage
 FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS runtime
@@ -63,7 +64,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-dejavu-core=2.37-8 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /usr/local/lib/python3.11/site-packages/*
+    && rm -rf /usr/local/lib/python*/site-packages/*
 
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
