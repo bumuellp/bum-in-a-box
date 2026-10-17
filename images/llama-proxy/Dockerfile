@@ -1,5 +1,5 @@
 # Stage 1: Build llama-swap binary with official Go 1.27.2
-FROM debian:bookworm-slim AS go-builder
+FROM debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587 AS go-builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git=1:2.39.5-0+deb12u3 \
@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=golang:1.27.2 /usr/local/go /usr/local/go
+COPY --from=golang:1.27.2@sha256:820153096fda4de6ac1b7194d12e416b7dd8f4e9a33d17e0345b111b945162d8 /usr/local/go /usr/local/go
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 ENV GOTOOLCHAIN=auto
@@ -26,7 +26,7 @@ RUN /usr/local/go/bin/go version \
     && /usr/local/go/bin/go version -m /build/llama-swap
 
 # Stage 2: Official GGML Vulkan runtime (native glibc, OpenSSL 3.3, and Vulkan drivers)
-FROM ghcr.io/ggml-org/llama.cpp:server-vulkan
+FROM ghcr.io/ggml-org/llama.cpp:server-vulkan@sha256:5096299bac58e2b24f0371221c83eac786b206165bf8235dabc83d3ed514eb48
 
 LABEL org.opencontainers.image.title="llama-proxy" \
       org.opencontainers.image.description="llama-swap proxy with native Vulkan llama-server" \

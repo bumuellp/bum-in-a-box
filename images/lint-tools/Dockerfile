@@ -4,7 +4,7 @@
 
 # Stage 1: Tool Downloader (Builder)
 # ------------------------------------------------------------------------------
-FROM debian:trixie-slim AS builder
+FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=golang:1.27.2 /usr/local/go /usr/local/go
+COPY --from=golang:1.27.2@sha256:820153096fda4de6ac1b7194d12e416b7dd8f4e9a33d17e0345b111b945162d8 /usr/local/go /usr/local/go
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -81,7 +81,7 @@ RUN mkdir -p /tmp/licenses/opentofu \
 
 # Stage 2: Runtime Image
 # ------------------------------------------------------------------------------
-FROM debian:trixie-slim
+FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f
 
 LABEL org.opencontainers.image.title="lint-tools" \
       org.opencontainers.image.description="DevOps linting, secrets scanning, and validation toolchain on Debian Trixie" \
