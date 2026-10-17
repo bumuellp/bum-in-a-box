@@ -54,7 +54,8 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    libexpat1=2.9.0-1~deb13u1 \
     libpango-1.0-0=1.56.3-1 \
     libpangoft2-1.0-0=1.56.3-1 \
     libharfbuzz0b=10.2.0-1+deb13u1 \
