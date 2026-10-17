@@ -9,7 +9,7 @@ FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-        curl=8.14.1-2+deb13u5 \
+        curl=8.14.1-2+deb13u7 \
         ca-certificates=20250419 \
         tar=1.35+dfsg-3.1 \
         gzip=1.13-1+deb13u1 \
@@ -95,10 +95,11 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
         bash=5.2.37-2+b10 \
         git=1:2.47.3-0+deb13u1 \
-        curl=8.14.1-2+deb13u5 \
+        curl=8.14.1-2+deb13u7 \
         openssh-client=1:10.0p1-7+deb13u4 \
         ca-certificates=20250419 \
         libxml2-utils=2.12.7+dfsg+really2.9.14-2.1+deb13u3 \
+        libexpat1=2.9.0-1~deb13u1 \
         shellcheck=0.10.0-1 \
         yamllint=1.37.1-1 \
         python3=3.13.5-1 \
