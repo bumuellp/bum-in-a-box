@@ -10,7 +10,7 @@ ARG VIBE_TRADING_REF
 RUN git clone ${VIBE_TRADING_REPO} . && git checkout ${VIBE_TRADING_REF}
 
 # Stage 1: Build Web UI frontend
-FROM node:24-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20 AS frontend-build
+FROM node:24-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5 AS frontend-build
 WORKDIR /app/frontend
 COPY --from=src /src/frontend/package.json /src/frontend/package-lock.json ./
 RUN npm ci --ignore-scripts
