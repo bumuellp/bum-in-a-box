@@ -57,6 +57,10 @@ lint-tools)
 	docker run --rm "$FULL_IMAGE" uv --version
 	docker run --rm "$FULL_IMAGE" pre-commit --version
 	docker run --rm "$FULL_IMAGE" pytest --version
+	docker run --rm "$FULL_IMAGE" cargo --version
+	docker run --rm "$FULL_IMAGE" rustc --version
+	docker run --rm "$FULL_IMAGE" rustfmt --version
+	docker run --rm "$FULL_IMAGE" cargo clippy --version
 	echo "✓ All lint-tools binaries verified successfully."
 	;;
 

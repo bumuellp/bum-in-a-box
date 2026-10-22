@@ -77,6 +77,16 @@ RUN mkdir -p /tmp/licenses/opentofu \
     && mv /tmp/licenses/opentofu/tofu /tmp/bin/tofu \
     && chmod +x /tmp/bin/tofu
 
+# 9. Rust toolchain for linting (cargo, clippy, rustfmt)
+ARG RUST_VERSION=1.85.0
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+        --default-toolchain "${RUST_VERSION}" \
+        --profile minimal \
+        --component clippy rustfmt \
+    && chmod -R a+rx /usr/local/cargo /usr/local/rustup
+
 
 
 # Stage 2: Runtime Image
@@ -117,6 +127,10 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
 COPY --from=builder /tmp/bin/* /usr/local/bin/
 COPY --from=builder /tmp/licenses/ /usr/local/share/licenses/
 
+# Copy Rust toolchain from builder
+COPY --from=builder /usr/local/cargo /usr/local/cargo
+COPY --from=builder /usr/local/rustup /usr/local/rustup
+
 # Create a non-root user with home directory and workspace
 RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \
     && mkdir -p /home/appuser/.ansible /home/appuser/.cache /workspace \
@@ -125,6 +139,9 @@ RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \
 ENV HOME=/home/appuser
 ENV PRE_COMMIT_HOME=/tmp/pre-commit
 ENV ANSIBLE_LOCAL_TEMP=/tmp/ansible
+ENV RUSTUP_HOME=/usr/local/rustup
+ENV CARGO_HOME=/usr/local/cargo
+ENV PATH="/usr/local/cargo/bin:${PATH}"
 
 # Default workspace directory
 WORKDIR /workspace
@@ -145,4 +162,8 @@ RUN shellcheck --version \
     && uv --version \
     && pre-commit --version \
     && ansible --version \
-    && pytest --version
+    && pytest --version \
+    && cargo --version \
+    && rustc --version \
+    && rustfmt --version \
+    && cargo clippy --version
