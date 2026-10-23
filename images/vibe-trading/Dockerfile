@@ -37,7 +37,7 @@ RUN pip install --no-cache-dir --require-hashes -r requirements-lock.txt
 COPY --from=src /src/pyproject.toml /src/LICENSE /src/README.md ./
 COPY --from=src /src/agent/ agent/
 RUN pip install --no-cache-dir -e . \
-    && pip install --no-cache-dir --upgrade "wheel>=0.46.2" "jaraco.context>=6.1.0" "setuptools>=78.1.1" "urllib3>=2.8.0" \
+    && pip install --no-cache-dir --upgrade "wheel>=0.46.2" "jaraco.context>=6.1.0" "setuptools>=78.1.1" "urllib3>=2.8.0" "aiohttp>=3.14.4" "certifi>=2026.10.19" "pillow>=13.0.0" \
     && rm -rf /opt/venv/lib/python*/site-packages/pip* /opt/venv/lib/python*/site-packages/setuptools* /opt/venv/lib/python*/site-packages/wheel* /opt/venv/bin/pip*
 
 # Stage 3: Minimal secure runtime stage

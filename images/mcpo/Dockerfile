@@ -19,10 +19,11 @@ RUN npm install -g --force npm@latest brace-expansion@latest ip-address@latest t
 
 # Install uv, mcpo gateway, and pinned dependencies
 RUN pip3 install --no-cache-dir --break-system-packages \
-  uv==0.12.17 \
+  uv==0.13.5 \
   mcp==1.30.0 \
   mcpo==0.0.20 \
-  setuptools==66.1.1
+  certifi==2026.10.19 \
+  setuptools==84.2.1
 
 LABEL org.opencontainers.image.title="mcpo" \
       org.opencontainers.image.description="Model Context Protocol gateway & uvx runner bridge" \
