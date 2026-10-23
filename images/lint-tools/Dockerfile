@@ -119,7 +119,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
         gcc=4:14.2.0-1 \
         libc6-dev=2.41-12+deb13u4 \
     && pip install --no-cache-dir --break-system-packages --ignore-installed \
-        uv==0.12.17 \
+        uv==0.13.5 \
         pre-commit==4.6.2 \
         ansible-core==2.21.4 \
         ansible-lint==26.8.0 \
