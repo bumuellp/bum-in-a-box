@@ -6,6 +6,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
   python3-venv=3.11.2-1+b1 \
   git=1:2.39.5-0+deb12u3 \
   curl=7.88.1-10+deb12u15 \
+  libexpat1=2.5.0-1+deb12u5 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

@@ -36,6 +36,7 @@ npm install \
 	@vitest/browser@latest \
 	adm-zip@latest \
 	brace-expansion@latest \
+	dompurify@latest \
 	fast-uri@latest \
 	follow-redirects@latest \
 	ip-address@latest \
@@ -51,6 +52,7 @@ npm install \
 PATCH_PKGS=(
 	adm-zip
 	brace-expansion
+	dompurify
 	fast-uri
 	follow-redirects
 	ip-address
@@ -87,7 +89,7 @@ for pkg in @opentelemetry/propagator-jaeger @vitest/browser @modelcontextprotoco
 done
 
 # Propagate patched packages to nested transitive dependencies
-for pkg in nanoid undici tar brace-expansion ip-address adm-zip fast-uri joi source-map-js follow-redirects markdown-it vite; do
+for pkg in nanoid undici tar brace-expansion dompurify ip-address adm-zip fast-uri joi source-map-js follow-redirects markdown-it vite; do
 	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
 		while IFS= read -r -d '' target_dir; do
 			if [ "$target_dir" != "/app/node_modules/$pkg" ]; then
