@@ -78,7 +78,7 @@ RUN mkdir -p /tmp/licenses/opentofu \
     && chmod +x /tmp/bin/tofu
 
 # 9. Rust toolchain for linting (cargo, clippy, rustfmt)
-ARG RUST_VERSION=1.85.0
+ARG RUST_VERSION=1.99.0
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
@@ -102,6 +102,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install linters, python, and utilities via standard APT package manager
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
         bash=5.2.37-2+b10 \
         git=1:2.47.3-0+deb13u1 \
@@ -115,6 +116,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
         python3=3.13.5-1 \
         python3-pip=25.1.1+dfsg-1 \
         python3-pytest=8.3.5-2 \
+        gcc \
+        libc6-dev \
     && pip install --no-cache-dir --break-system-packages --ignore-installed \
         uv==0.12.17 \
         pre-commit==4.6.2 \
@@ -133,8 +136,9 @@ COPY --from=builder /usr/local/rustup /usr/local/rustup
 
 # Create a non-root user with home directory and workspace
 RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \
-    && mkdir -p /home/appuser/.ansible /home/appuser/.cache /workspace \
-    && chown -R 1000:1000 /home/appuser /workspace
+    && mkdir -p /home/appuser/.ansible /home/appuser/.cache /home/appuser/.cargo /workspace \
+    && chown -R 1000:1000 /home/appuser /workspace /usr/local/cargo /usr/local/rustup \
+    && chmod -R a+rwX /usr/local/cargo
 
 ENV HOME=/home/appuser
 ENV PRE_COMMIT_HOME=/tmp/pre-commit
