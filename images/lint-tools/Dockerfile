@@ -85,7 +85,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
         --default-toolchain "${RUST_VERSION}" \
         --profile minimal \
         --component clippy rustfmt \
-    && chmod -R a+rx /usr/local/cargo /usr/local/rustup
+    && chmod -R a+rx /usr/local/cargo /usr/local/rustup \
+    && chmod -R a+rwX /usr/local/cargo
 
 
 
@@ -102,7 +103,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install linters, python, and utilities via standard APT package manager
-# hadolint ignore=DL3008
 RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
         bash=5.2.37-2+b10 \
         git=1:2.47.3-0+deb13u1 \
@@ -116,8 +116,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
         python3=3.13.5-1 \
         python3-pip=25.1.1+dfsg-1 \
         python3-pytest=8.3.5-2 \
-        gcc \
-        libc6-dev \
+        gcc=4:14.2.0-1 \
+        libc6-dev=2.41-12+deb13u4 \
     && pip install --no-cache-dir --break-system-packages --ignore-installed \
         uv==0.12.17 \
         pre-commit==4.6.2 \
@@ -131,14 +131,13 @@ COPY --from=builder /tmp/bin/* /usr/local/bin/
 COPY --from=builder /tmp/licenses/ /usr/local/share/licenses/
 
 # Copy Rust toolchain from builder
-COPY --from=builder /usr/local/cargo /usr/local/cargo
-COPY --from=builder /usr/local/rustup /usr/local/rustup
+COPY --chown=1000:1000 --from=builder /usr/local/cargo /usr/local/cargo
+COPY --chown=1000:1000 --from=builder /usr/local/rustup /usr/local/rustup
 
 # Create a non-root user with home directory and workspace
 RUN useradd -u 1000 -m -d /home/appuser -s /bin/bash appuser \
     && mkdir -p /home/appuser/.ansible /home/appuser/.cache /home/appuser/.cargo /workspace \
-    && chown -R 1000:1000 /home/appuser /workspace /usr/local/cargo /usr/local/rustup \
-    && chmod -R a+rwX /usr/local/cargo
+    && chown -R 1000:1000 /home/appuser /workspace
 
 ENV HOME=/home/appuser
 ENV PRE_COMMIT_HOME=/tmp/pre-commit
