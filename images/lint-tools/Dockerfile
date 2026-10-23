@@ -84,7 +84,7 @@ ENV RUSTUP_HOME=/usr/local/rustup \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
         --default-toolchain "${RUST_VERSION}" \
         --profile minimal \
-        --component clippy rustfmt \
+        --component clippy,rustfmt \
     && chmod -R a+rx /usr/local/cargo /usr/local/rustup \
     && chmod -R a+rwX /usr/local/cargo
 
