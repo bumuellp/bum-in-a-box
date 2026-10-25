@@ -127,6 +127,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
         ca-certificates=20250419 \
         libxml2-utils=2.12.7+dfsg+really2.9.14-2.1+deb13u3 \
         libexpat1=2.9.0-1~deb13u1 \
+        libbrotli1=1.1.0-2+deb13u1 \
         shellcheck=0.10.0-1 \
         yamllint=1.37.1-1 \
         python3=3.13.5-1 \
