@@ -77,7 +77,23 @@ RUN mkdir -p /tmp/licenses/opentofu \
     && mv /tmp/licenses/opentofu/tofu /tmp/bin/tofu \
     && chmod +x /tmp/bin/tofu
 
-# 9. Rust toolchain for linting (cargo, clippy, rustfmt)
+# 9. jq
+# renovate: datasource=github-releases depName=jqlang/jq
+ARG JQ_VERSION=1.7.1
+RUN mkdir -p /tmp/licenses/jq \
+    && curl -sL "https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-amd64" -o /tmp/bin/jq \
+    && chmod +x /tmp/bin/jq \
+    && curl -fsSL "https://raw.githubusercontent.com/jqlang/jq/master/COPYING" -o /tmp/licenses/jq/LICENSE
+
+# 10. hcloud
+# renovate: datasource=github-releases depName=hetznercloud/cli
+ARG HCLOUD_VERSION=v1.70.2
+RUN mkdir -p /tmp/licenses/hcloud \
+    && curl -sL "https://github.com/hetznercloud/cli/releases/download/${HCLOUD_VERSION}/hcloud-linux-amd64.tar.gz" | tar -xz -C /tmp/bin hcloud \
+    && chmod +x /tmp/bin/hcloud \
+    && curl -fsSL "https://raw.githubusercontent.com/hetznercloud/cli/master/LICENSE" -o /tmp/licenses/hcloud/LICENSE
+
+# 11. Rust toolchain for linting (cargo, clippy, rustfmt)
 ARG RUST_VERSION=1.99.0
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo
@@ -169,4 +185,6 @@ RUN shellcheck --version \
     && cargo --version \
     && rustc --version \
     && rustfmt --version \
-    && cargo clippy --version
+    && cargo clippy --version \
+    && jq --version \
+    && hcloud version

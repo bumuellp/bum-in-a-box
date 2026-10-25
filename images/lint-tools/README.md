@@ -24,6 +24,8 @@ Compiles all Go tools from source with official Go 1.27.1, eliminates Go standar
 | **`hadolint`** | 2.12.0 | GPL-3.0 | Dockerfile static linter |
 | **`tofu`** | v1.13.1 | MPL-2.0 | Declarative OpenTofu & Terraform infrastructure tool |
 | **`ansible`** | ansible-core + ansible-lint | GPL-3.0 | Playbook syntax and linting tool |
+| **`jq`** | 1.7.1 | CC-BY-3.0 | Command-line JSON processor |
+| **`hcloud`** | v1.70.2 | MIT | Hetzner Cloud official CLI |
 
 
 ---
