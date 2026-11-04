@@ -18,7 +18,7 @@ COPY --from=src /src/frontend ./
 RUN npm run build
 
 # Stage 2: Python builder — compiles venv with dependencies
-FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS builder
+FROM python:3.15-slim@sha256:8c13a3f37a6a5b71498228e902c4b9f51c1f7900d49fabf71f9a650c6120e0d0 AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential=12.12 \
@@ -41,7 +41,7 @@ RUN pip install --no-cache-dir -e . \
     && rm -rf /opt/venv/lib/python*/site-packages/pip* /opt/venv/lib/python*/site-packages/setuptools* /opt/venv/lib/python*/site-packages/wheel* /opt/venv/bin/pip*
 
 # Stage 3: Minimal secure runtime stage
-FROM python:3.14-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS runtime
+FROM python:3.15-slim@sha256:8c13a3f37a6a5b71498228e902c4b9f51c1f7900d49fabf71f9a650c6120e0d0 AS runtime
 
 LABEL org.opencontainers.image.title="Vibe-Trading" \
     org.opencontainers.image.description="Natural-language finance research AI agent with backtesting" \
