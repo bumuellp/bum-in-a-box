@@ -4,7 +4,7 @@
 
 # Stage 1: Tool Downloader (Builder)
 # ------------------------------------------------------------------------------
-FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f AS builder
+FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=golang:1.27.3@sha256:f20d83a83e18dbd2a4714b8ffd4b30b287b6243962dd75608e86abcc63ba4efc /usr/local/go /usr/local/go
+COPY --from=golang:1.27.3@sha256:e519d3b0a5b285e5aa53ab9eef02bc6bbb9cb04608389b743a136a9ce75f0d1e /usr/local/go /usr/local/go
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -108,7 +108,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
 
 # Stage 2: Runtime Image
 # ------------------------------------------------------------------------------
-FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f
+FROM debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
 
 LABEL org.opencontainers.image.title="lint-tools" \
       org.opencontainers.image.description="DevOps linting, secrets scanning, and validation toolchain on Debian Trixie" \
