@@ -1,4 +1,4 @@
-FROM ghcr.io/openclaw/openclaw@sha256:ea298b62be8955d3ef750e2004a610dd90c3a30e5f9886e5d654d78a0c573218
+FROM ghcr.io/openclaw/openclaw@sha256:db0e0809fbd0df375445e9eea8daf2a278ac7ac3a263fa6bfce8fb344ad3ad77
 
 LABEL org.opencontainers.image.title="openclaw" \
       org.opencontainers.image.description="Hardened autonomous web browsing and agent execution stack" \
