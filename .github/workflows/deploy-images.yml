@@ -116,7 +116,7 @@ jobs:
   deploy:
     name: Deploy
     needs: resolve-target
-    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@2825c4fe8e4a4505686ab06efe6415431960f71f # v1.10.0
+    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@e13ffa1fb937ece0ff0fb24c0d9b538b80c3de2e # v1.11.1
     with:
       images: |
         [
