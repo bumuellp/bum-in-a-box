@@ -1,12 +1,12 @@
 FROM node:26-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-  python3=3.11.2-1+b1 \
-  python3-pip=23.0.1+dfsg-1 \
-  python3-venv=3.11.2-1+b1 \
-  git=1:2.39.5-0+deb12u3 \
-  curl=7.88.1-10+deb12u15 \
-  libexpat1=2.5.0-1+deb12u5 \
+  python3 \
+  python3-pip \
+  python3-venv \
+  git \
+  curl \
+  libexpat1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

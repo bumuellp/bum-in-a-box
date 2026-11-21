@@ -11,9 +11,9 @@ USER 0:0
 
 # Install system dependencies and clean up package manager caches
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    cargo=0.66.0+ds1-1 \
-    curl=7.88.1-10+deb12u15 \
-    lsof=4.95.0-1 \
+    cargo \
+    curl \
+    lsof \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

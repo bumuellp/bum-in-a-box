@@ -8,6 +8,7 @@ LICENSE
 .gitattributes
 
 # Quality gates & scanners (repositories have language-specific linters and configurations)
+.hadolint.yaml
 .pre-commit-config.yaml
 trivy.yaml
 .trivyignore

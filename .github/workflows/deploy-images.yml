@@ -7,6 +7,11 @@ name: Deploy Container Images
       - main
     paths:
       - 'images/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'images/**'
   release:
     types:
       - published
@@ -50,8 +55,8 @@ permissions:
   packages: write
 
 concurrency:
-  group: deploy-images
-  cancel-in-progress: false
+  group: deploy-images-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   resolve-target:
@@ -130,6 +135,7 @@ jobs:
       extra-tags: ${{ needs.resolve-target.outputs.extra-tags }}
       scan-with-trivy: true
       compliance: docker-cis-1.6.0
+      push: ${{ github.event_name != 'pull_request' }}
       smoke-test-script: scripts/smoke-test.sh
     secrets:
       registry-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,9 +1,9 @@
-# Stage 1: Build llama-swap binary with official Go 1.27.3
+# Stage 1: Build llama-swap binary with official Go 1.27.4
 FROM debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc AS go-builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git=1:2.39.5-0+deb12u3 \
-    ca-certificates=20250419~deb12u1 \
+    git \
+    ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,7 +18,7 @@ ARG LLAMA_SWAP_REF=main
 ARG CACHEBUST=20260824
 RUN /usr/local/go/bin/go version \
     && git clone --depth 1 ${LLAMA_SWAP_REPO} . && git checkout ${LLAMA_SWAP_REF} \
-    && go get golang.org/x/net@v0.60.0 \
+    && go get golang.org/x/net@v0.63.0 \
     && go mod tidy \
     && mkdir -p /build/licenses/llama-swap \
     && cp LICENSE* /build/licenses/llama-swap/ 2>/dev/null || true \
