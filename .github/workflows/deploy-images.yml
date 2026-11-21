@@ -43,7 +43,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy
-    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@ec4b35103895d766e16059664d0625493c81a980  # v1
+    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@ec4b35103895d766e16059664d0625493c81a980  # v1.15.0
     with:
       images: auto
       target: ${{ github.event_name == 'workflow_dispatch' && inputs.target || 'auto' }}
