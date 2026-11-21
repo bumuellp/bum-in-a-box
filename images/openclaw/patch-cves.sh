@@ -7,20 +7,20 @@ set -euo pipefail
 
 echo "=== Upgrading global npm toolchain and dependencies ==="
 npm install -g --force \
-	npm@latest \
-	pnpm@latest \
-	playwright@latest \
-	brace-expansion@latest \
-	ip-address@latest \
-	tar@latest \
-	undici@latest \
-	nanoid@latest
+    npm@latest \
+    pnpm@latest \
+    playwright@latest \
+    brace-expansion@latest \
+    ip-address@latest \
+    tar@latest \
+    undici@latest \
+    nanoid@latest
 
 # Patch npm's internal vendored copies
 for pkg in brace-expansion ip-address tar undici; do
-	if [ -d "/usr/local/lib/node_modules/$pkg" ]; then
-		cp -rf "/usr/local/lib/node_modules/$pkg" /usr/local/lib/node_modules/npm/node_modules/
-	fi
+    if [ -d "/usr/local/lib/node_modules/$pkg" ]; then
+        cp -rf "/usr/local/lib/node_modules/$pkg" /usr/local/lib/node_modules/npm/node_modules/
+    fi
 done
 
 rm -rf /usr/local/share/corepack
@@ -30,83 +30,83 @@ mkdir -p /tmp/patch
 cd /tmp/patch
 
 npm install \
-	@modelcontextprotocol/client@latest \
-	@modelcontextprotocol/sdk@latest \
-	@opentelemetry/propagator-jaeger@latest \
-	@vitest/browser@latest \
-	adm-zip@latest \
-	brace-expansion@latest \
-	dompurify@latest \
-	fast-uri@latest \
-	follow-redirects@latest \
-	ip-address@latest \
-	joi@latest \
-	markdown-it@latest \
-	postcss@latest \
-	source-map-js@latest \
-	tar@latest \
-	undici@latest \
-	vite@latest \
-	nanoid@latest
+    @modelcontextprotocol/client@latest \
+    @modelcontextprotocol/sdk@latest \
+    @opentelemetry/propagator-jaeger@latest \
+    @vitest/browser@latest \
+    adm-zip@latest \
+    brace-expansion@latest \
+    dompurify@latest \
+    fast-uri@latest \
+    follow-redirects@latest \
+    ip-address@latest \
+    joi@latest \
+    markdown-it@latest \
+    postcss@latest \
+    source-map-js@latest \
+    tar@latest \
+    undici@latest \
+    vite@latest \
+    nanoid@latest
 
 PATCH_PKGS=(
-	adm-zip
-	brace-expansion
-	dompurify
-	fast-uri
-	follow-redirects
-	ip-address
-	joi
-	markdown-it
-	nanoid
-	postcss
-	source-map-js
-	tar
-	undici
-	vite
-	ws
+    adm-zip
+    brace-expansion
+    dompurify
+    fast-uri
+    follow-redirects
+    ip-address
+    joi
+    markdown-it
+    nanoid
+    postcss
+    source-map-js
+    tar
+    undici
+    vite
+    ws
 )
 
 # Remove known vulnerable versions in /app/node_modules
 for pkg in "${PATCH_PKGS[@]}"; do
-	rm -rf "/app/node_modules/$pkg"
+    rm -rf "/app/node_modules/$pkg"
 done
 rm -rf /app/node_modules/@modelcontextprotocol/client /app/node_modules/@modelcontextprotocol/sdk
 
 # Copy patched packages to top-level if present in /tmp/patch
 for pkg in "${PATCH_PKGS[@]}"; do
-	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
-		cp -rf "/tmp/patch/node_modules/$pkg" /app/node_modules/
-	fi
+    if [ -d "/tmp/patch/node_modules/$pkg" ]; then
+        cp -rf "/tmp/patch/node_modules/$pkg" /app/node_modules/
+    fi
 done
 
 for pkg in @opentelemetry/propagator-jaeger @vitest/browser @modelcontextprotocol/client @modelcontextprotocol/sdk; do
-	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
-		mkdir -p "/app/node_modules/$(dirname "$pkg")"
-		rm -rf "/app/node_modules/$pkg"
-		cp -rf "/tmp/patch/node_modules/$pkg" "/app/node_modules/$pkg"
-	fi
+    if [ -d "/tmp/patch/node_modules/$pkg" ]; then
+        mkdir -p "/app/node_modules/$(dirname "$pkg")"
+        rm -rf "/app/node_modules/$pkg"
+        cp -rf "/tmp/patch/node_modules/$pkg" "/app/node_modules/$pkg"
+    fi
 done
 
 # Propagate patched packages to nested transitive dependencies
 for pkg in nanoid undici tar brace-expansion dompurify ip-address adm-zip fast-uri joi source-map-js follow-redirects markdown-it vite; do
-	if [ -d "/tmp/patch/node_modules/$pkg" ]; then
-		while IFS= read -r -d '' target_dir; do
-			if [ "$target_dir" != "/app/node_modules/$pkg" ]; then
-				cp -rf "/tmp/patch/node_modules/$pkg"/. "$target_dir/"
-			fi
-		done < <(find /app/node_modules -type d -name "$pkg" -print0)
-	fi
+    if [ -d "/tmp/patch/node_modules/$pkg" ]; then
+        while IFS= read -r -d '' target_dir; do
+            if [ "$target_dir" != "/app/node_modules/$pkg" ]; then
+                cp -rf "/tmp/patch/node_modules/$pkg"/. "$target_dir/"
+            fi
+        done < <(find /app/node_modules -type d -name "$pkg" -print0)
+    fi
 done
 
 for pkg in client sdk; do
-	if [ -d "/tmp/patch/node_modules/@modelcontextprotocol/$pkg" ]; then
-		while IFS= read -r -d '' target_dir; do
-			if [ "$target_dir" != "/app/node_modules/@modelcontextprotocol/$pkg" ]; then
-				cp -rf "/tmp/patch/node_modules/@modelcontextprotocol/$pkg"/. "$target_dir/"
-			fi
-		done < <(find /app/node_modules -path "*/@modelcontextprotocol/$pkg" -type d -print0)
-	fi
+    if [ -d "/tmp/patch/node_modules/@modelcontextprotocol/$pkg" ]; then
+        while IFS= read -r -d '' target_dir; do
+            if [ "$target_dir" != "/app/node_modules/@modelcontextprotocol/$pkg" ]; then
+                cp -rf "/tmp/patch/node_modules/@modelcontextprotocol/$pkg"/. "$target_dir/"
+            fi
+        done < <(find /app/node_modules -path "*/@modelcontextprotocol/$pkg" -type d -print0)
+    fi
 done
 
 # Clean up temporary patch artifacts, unused QA test files, and dead third-party SBOM manifests

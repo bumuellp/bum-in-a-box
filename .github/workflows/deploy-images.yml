@@ -7,39 +7,26 @@ name: Deploy Container Images
       - main
     paths:
       - 'images/**'
+      - '.trivyignore'
+      - 'trivy.yaml'
+      - 'scripts/smoke-test.sh'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'images/**'
+      - '.trivyignore'
+      - 'trivy.yaml'
+      - 'scripts/smoke-test.sh'
   release:
     types:
       - published
   workflow_dispatch:
     inputs:
-      mode:
-        description: Build mode (all = rebuild all, auto = git diff, custom = use checkboxes)
-        type: choice
-        options:
-          - all
-          - auto
-          - custom
+      target:
+        description: Target image(s) to build ('all', 'auto', or comma-separated names)
+        type: string
         default: all
-      lint_tools:
-        description: 'Custom: Build lint-tools'
-        type: boolean
-        default: false
-      llama_proxy:
-        description: 'Custom: Build llama-proxy'
-        type: boolean
-        default: false
-      mcpo:
-        description: 'Custom: Build mcpo'
-        type: boolean
-        default: false
-      vibe_trading:
-        description: 'Custom: Build vibe-trading'
-        type: boolean
-        default: false
-      openclaw:
-        description: 'Custom: Build openclaw'
-        type: boolean
-        default: false
       extra-tags:
         description: Comma-separated extra tags (leave blank for default v1 or release tag)
         type: string
@@ -50,86 +37,22 @@ permissions:
   packages: write
 
 concurrency:
-  group: deploy-images
-  cancel-in-progress: false
+  group: deploy-images-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  resolve-target:
-    name: Resolve Target
-    runs-on: ubuntu-latest
-    outputs:
-      target: ${{ steps.resolve.outputs.target }}
-      extra-tags: ${{ steps.resolve.outputs.extra-tags }}
-    steps:
-      - name: Compute Target Selection
-        id: resolve
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          MODE: ${{ inputs.mode }}
-          LINT_TOOLS: ${{ inputs.lint_tools }}
-          LLAMA_PROXY: ${{ inputs.llama_proxy }}
-          MCPO: ${{ inputs.mcpo }}
-          VIBE_TRADING: ${{ inputs.vibe_trading }}
-          OPENCLAW: ${{ inputs.openclaw }}
-          INPUT_EXTRA_TAGS: ${{ inputs.extra-tags }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          # 1. Compute extra tags
-          if [ -n "$INPUT_EXTRA_TAGS" ]; then
-            echo "extra-tags=$INPUT_EXTRA_TAGS" >> "$GITHUB_OUTPUT"
-          elif [ "$EVENT_NAME" = "release" ] && [ -n "$RELEASE_TAG" ]; then
-            echo "extra-tags=$RELEASE_TAG, v1" >> "$GITHUB_OUTPUT"
-          else
-            echo "extra-tags=v1" >> "$GITHUB_OUTPUT"
-          fi
-
-          # 2. Compute target image filter
-          if [ "$EVENT_NAME" = "release" ]; then
-            echo "target=all" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
-            echo "target=auto" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if [ "$MODE" = "all" ] || [ "$MODE" = "auto" ]; then
-            echo "target=$MODE" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          TARGETS=()
-          [ "$LINT_TOOLS" = "true" ] && TARGETS+=("lint-tools")
-          [ "$LLAMA_PROXY" = "true" ] && TARGETS+=("llama-proxy")
-          [ "$MCPO" = "true" ] && TARGETS+=("mcpo")
-          [ "$VIBE_TRADING" = "true" ] && TARGETS+=("vibe-trading")
-          [ "$OPENCLAW" = "true" ] && TARGETS+=("openclaw")
-
-          if [ ${#TARGETS[@]} -eq 0 ]; then
-            echo "target=none" >> "$GITHUB_OUTPUT"
-          else
-            TARGET_STR=$(IFS=','; echo "${TARGETS[*]}")
-            echo "target=$TARGET_STR" >> "$GITHUB_OUTPUT"
-          fi
-
   deploy:
     name: Deploy
-    needs: resolve-target
-    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@e13ffa1fb937ece0ff0fb24c0d9b538b80c3de2e # v1.11.1
+    uses: bumuellp/lights-camera-bum-action/.github/workflows/deploy-images.yml@ec4b35103895d766e16059664d0625493c81a980  # v1.15.0
     with:
-      images: |
-        [
-          {"name": "lint-tools", "path": "images/lint-tools"},
-          {"name": "llama-proxy", "path": "images/llama-proxy"},
-          {"name": "mcpo", "path": "images/mcpo"},
-          {"name": "vibe-trading", "path": "images/vibe-trading"},
-          {"name": "openclaw", "path": "images/openclaw"}
-        ]
-      target: ${{ needs.resolve-target.outputs.target }}
-      extra-tags: ${{ needs.resolve-target.outputs.extra-tags }}
+      images: auto
+      target: ${{ github.event_name == 'workflow_dispatch' && inputs.target || 'auto' }}
+      shared-paths: '.trivyignore, trivy.yaml, scripts/smoke-test.sh'
+      free-disk-space: true
+      extra-tags: ${{ github.event_name == 'workflow_dispatch' && inputs.extra-tags || '' }}
       scan-with-trivy: true
       compliance: docker-cis-1.6.0
+      push: ${{ github.event_name != 'pull_request' }}
       smoke-test-script: scripts/smoke-test.sh
     secrets:
       registry-token: ${{ secrets.GITHUB_TOKEN }}
