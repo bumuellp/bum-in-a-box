@@ -123,7 +123,7 @@ RUN mkdir -p /out/bin /out/share/licenses/trufflehog \
 
 FROM builder-base AS build-hadolint
 # renovate: datasource=github-releases depName=hadolint/hadolint
-ARG HADOLINT_VERSION=2.12.0
+ARG HADOLINT_VERSION=2.15.1
 RUN mkdir -p /out/bin /out/share/licenses/hadolint \
     && curl -fsSL "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-x86_64" -o /out/bin/hadolint \
     && chmod +x /out/bin/hadolint \
