@@ -131,7 +131,7 @@ RUN mkdir -p /out/bin /out/share/licenses/hadolint \
 
 FROM builder-base AS build-jq
 # renovate: datasource=github-releases depName=jqlang/jq extractVersion=^jq-(?<version>.+)$
-ARG JQ_VERSION=1.7.1
+ARG JQ_VERSION=1.8.2
 RUN mkdir -p /out/bin /out/share/licenses/jq \
     && curl -fsSL "https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-amd64" -o /out/bin/jq \
     && chmod +x /out/bin/jq \
