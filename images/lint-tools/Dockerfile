@@ -64,7 +64,7 @@ RUN build-go-tool https://github.com/zegl/kube-score.git "v${KUBESCORE_VERSION}"
 
 FROM go-builder-base AS build-kustomize
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize extractVersion=^kustomize/(?<version>.+)$
-ARG KUSTOMIZE_VERSION=v5.8.1
+ARG KUSTOMIZE_VERSION=v5.8.3
 ARG GOLANG_X_TEXT_VERSION
 RUN build-go-tool https://github.com/kubernetes-sigs/kustomize.git "kustomize/${KUSTOMIZE_VERSION}" kustomize kustomize \
     "golang.org/x/text@${GOLANG_X_TEXT_VERSION}"
