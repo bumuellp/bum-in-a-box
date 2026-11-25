@@ -67,8 +67,11 @@ lint-tools)
 llama-proxy)
     check_non_root "$FULL_IMAGE"
     echo "Verifying llama-swap binary..."
-    run_command_preview docker run --rm --entrypoint /usr/local/bin/llama-swap "$FULL_IMAGE" -h
-    echo "✓ llama-proxy entrypoint verified."
+    run_command_preview docker run --rm --entrypoint llama-swap "$FULL_IMAGE" -h
+    echo "Verifying llama-server is on PATH and symlinked in /usr/local/bin..."
+    docker run --rm --entrypoint sh "$FULL_IMAGE" -c 'command -v llama-server && test -x /usr/local/bin/llama-server'
+    run_command_preview docker run --rm --entrypoint llama-server "$FULL_IMAGE" --version
+    echo "✓ llama-proxy and llama-server entrypoints verified."
     ;;
 
 mcpo)

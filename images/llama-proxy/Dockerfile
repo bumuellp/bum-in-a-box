@@ -35,13 +35,16 @@ LABEL org.opencontainers.image.title="llama-proxy" \
 
 USER 0:0
 
+ENV PATH="/app:${PATH}"
+
 # Upgrade system packages to patch upstream OpenSSL vulnerabilities (CVE-2026-84782)
 RUN apt-get update && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Remove unused pebble binary inherited from upstream base image that contains Go stdlib CVEs
-RUN rm -f /usr/bin/pebble
+# Remove unused pebble binary (Go stdlib CVEs) and symlink llama-server into /usr/local/bin
+RUN rm -f /usr/bin/pebble \
+    && ln -sf /app/llama-server /usr/local/bin/llama-server
 
 # Copy static llama-swap binary and license from Go builder stage
 COPY --from=go-builder /build/llama-swap /usr/local/bin/llama-swap
