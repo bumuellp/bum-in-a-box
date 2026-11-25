@@ -56,5 +56,6 @@ services:
 ## ⚙️ Specifications & Ports
 - **Exposed Port**: `5002` (OpenAI-compatible HTTP API).
 - **Default Entrypoint**: `/usr/local/bin/llama-swap`.
+- **Bundled Inference Binary**: `llama-server` exposed on `PATH` (`/usr/local/bin/llama-server` -> `/app/llama-server`).
 - **Runtime User**: Non-root `1000:1000`.
 - **Base Runtime**: `ghcr.io/ggml-org/llama.cpp:server-vulkan`.

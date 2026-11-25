@@ -37,8 +37,11 @@ check_non_root() {
 
 run_command_preview() {
     local output
-    output="$("$@" 2>&1)"
-    echo "$output" | head -n 5
+    if ! output="$("$@" 2>&1)"; then
+        printf '%s\n' "$output" >&2
+        return 1
+    fi
+    printf '%s\n' "$output" | awk 'NR<=5'
 }
 
 case "$IMAGE_NAME" in
@@ -66,11 +69,11 @@ lint-tools)
 
 llama-proxy)
     check_non_root "$FULL_IMAGE"
-    echo "Verifying llama-swap binary..."
-    run_command_preview docker run --rm --entrypoint llama-swap "$FULL_IMAGE" -h
-    echo "Verifying llama-server is on PATH and symlinked in /usr/local/bin..."
-    docker run --rm --entrypoint sh "$FULL_IMAGE" -c 'command -v llama-server && test -x /usr/local/bin/llama-server'
-    run_command_preview docker run --rm --entrypoint llama-server "$FULL_IMAGE" --version
+    echo "Verifying default llama-swap entrypoint..."
+    run_command_preview docker run --rm "$FULL_IMAGE" -h
+    echo "Verifying /usr/local/bin/llama-server symlink and PATH resolution..."
+    docker run --rm -w /tmp --entrypoint sh "$FULL_IMAGE" -c 'test -L /usr/local/bin/llama-server && [ "$(readlink -f /usr/local/bin/llama-server)" = "/app/llama-server" ] && command -v llama-server'
+    run_command_preview docker run --rm -w /tmp -e PATH=/usr/local/bin:/usr/bin:/bin -e GGML_VK_VISIBLE_DEVICES="" --entrypoint /usr/local/bin/llama-server "$FULL_IMAGE" --version
     echo "✓ llama-proxy and llama-server entrypoints verified."
     ;;
 
