@@ -173,6 +173,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install --no-install-recomme
         libxml2-utils \
         libexpat1 \
         libbrotli1 \
+        libzstd1 \
         shellcheck \
         yamllint \
         python3 \
