@@ -40,12 +40,18 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Remove unused pebble binary inherited from upstream base image that contains Go stdlib CVEs
-RUN rm -f /usr/bin/pebble
+# Remove unused pebble binary (Go stdlib CVEs), symlink llama-server, and register /app with ldconfig
+RUN rm -f /usr/bin/pebble \
+    && test -x /app/llama-server \
+    && ln -sf /app/llama-server /usr/local/bin/llama-server \
+    && echo "/app" > /etc/ld.so.conf.d/llama-server.conf \
+    && ldconfig
 
 # Copy static llama-swap binary and license from Go builder stage
 COPY --from=go-builder /build/llama-swap /usr/local/bin/llama-swap
 COPY --from=go-builder /build/licenses/ /usr/local/share/licenses/
+
+ENV PATH="${PATH}:/app"
 
 EXPOSE 5002
 ENTRYPOINT ["/usr/local/bin/llama-swap"]

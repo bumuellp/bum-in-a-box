@@ -7,6 +7,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
   git \
   curl \
   libexpat1 \
+  libzstd1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

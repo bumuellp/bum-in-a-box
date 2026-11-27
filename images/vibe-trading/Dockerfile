@@ -56,6 +56,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     libexpat1 \
+    libzstd1 \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
     libharfbuzz0b \
